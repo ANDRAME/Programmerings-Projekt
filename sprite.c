@@ -1,0 +1,35 @@
+#include "sprite.h"
+#include "ansi.h"
+#include <stdio.h>
+
+static const char *player1_art[] = {
+    " || ",
+	" {} ",
+	"/  \\",
+    "<__>",
+};
+
+static const Spr PLAYER1_SPRITE = {
+    .data = player1_art,
+};
+
+
+void sprite_erase(int x, int y)
+{
+    for (uint8_t row = 0; row < 4; row++) {
+        gotoxy(x, y + row);
+        for (uint8_t col = 0; col < 4; col++) {
+            putchar(' ');
+        }
+    }
+}
+
+void sprite_draw(int cx, int cy)
+{
+    for (uint8_t row = 0; row < 4; row++) {
+    	gotoxy(cx, cy + row);
+    	printf("%s", PLAYER1_SPRITE.data[row]);
+        }
+}
+
+
