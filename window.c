@@ -60,7 +60,7 @@ void window(uint8_t xy1[2], uint8_t xy2[2], WindowStyle_t style)
     for (uint8_t x = x1 + 1; x < x2; x++) printf("%c", box.H);
     printf("%c", box.BR);
 
-    //ERROR IN BG COLOURING ON FIRST STARTUP?
+    //ERROR IN BG COLOURING?
 
     resetbgcolor();
     fgcolor(7);
