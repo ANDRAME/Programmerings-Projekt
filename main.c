@@ -9,6 +9,8 @@
 #include "players.h"
 #include "shoot.h"
 #include "alien.h"
+#include "game.h"
+#include "ui_screen.h"
 
 
 int main(void)
@@ -16,48 +18,28 @@ int main(void)
     uart_init(115200);
     clrscr();
     cursor_hide();
-    lcd_init();
 
 
-    RCC->AHBENR |= RCC_AHBPeriph_GPIOA
-                | RCC_AHBPeriph_GPIOB
-                | RCC_AHBPeriph_GPIOC;
-    setupTimer();
 
     WindowStyle_t myStyle;
     myStyle.wall = WALL_DOUBLE;
-    myStyle.fg = "3";
-    myStyle.bg = "6";
+    myStyle.fg = 7;
+    myStyle.bg = 0;
     myStyle.title = "Asteroids";
 
     P1 p1;
     P2 p2;
     player_init(&p1,&p2);
 
-
     Bounds bounds;
     bounds_init(&bounds);
 
-    char buf[32];
-    snprintf(buf, sizeof(buf), "Player 1 <3 :%d", p1.hlth);
-    lcd_write_string(1, 1, buf);
 
-    snprintf(buf, sizeof(buf), "Player 2 <3 :%d", p1.hlth);
-    lcd_write_string(1, 2, buf);
+    menu_action_t act = menu(&p1, &p2, &myStyle);
 
-    lcd_push_buffer(lcd_buffer);
-
-    window((uint8_t[]){1,1}, (uint8_t[]){100,40}, myStyle);
-
-    gotoxy(10,2);
-    printf("&&&&&&&&&&");
-
-    gotoxy(45,2);
-    printf("&&&&&&&&&&");
-
-    gotoxy(80,2);
-    printf("&&&&&&&&&&");
-
+    if (act == MENU_ACTION_QUIT) {
+        while (1) {}
+    }
 
     while (1) {
 
@@ -77,8 +59,11 @@ int main(void)
         player_step(&p1, &p2, &bounds); // loop forever
     	Bullets_Update();
     	point_count();
-    	gotoxy(104,6);
-    	printf("points %d", P1_player.pnt);
+
+    	uint16_t a0 = adc1_read();
+    	uint16_t a1 = adc2_read();
+    	printf("A0 %u A1 %u", a0, a1);
+
     }
 
 }
