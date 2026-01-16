@@ -5,13 +5,13 @@
 Bullet_t bullets[MAX_BULLETS];
 int bullet_count = 0;
 
-static void bullet_erase_at(int32_t x, int32_t y)
+void bullet_erase_at(int32_t x, int32_t y)
 {
     gotoxy(x, y);
     putchar(' ');
 }
 
-static void bullet_draw_at(int32_t x, int32_t y)
+void bullet_draw_at(int32_t x, int32_t y)
 {
     gotoxy(x, y);
     putchar('*');
@@ -40,7 +40,7 @@ void Bullets_Update(void)
 			}
 
 			/* delete if off screen */
-			if (bullets[i].y <= 1)
+			if (bullets[i].y <= 2)
 			{
 				bullets[i] = bullets[bullet_count - 1];
 				bullet_count--;
@@ -61,7 +61,7 @@ void Bullet_Spawn(int32_t shooter, P1 *p1, P2 *p2)
 
     Bullet_t *b = &bullets[bullet_count];
 
-    b->type   = BULL_FAST;
+    b->type   = BULL_SLOW;
     b->player = shooter;
 
     switch (b->player)

@@ -54,13 +54,12 @@ void window(uint8_t xy1[2], uint8_t xy2[2], WindowStyle_t style)
         gotoxy(x2, y); printf("%c", box.V);
     }
 
-
     // BOTTOM
     gotoxy(x1, y2); printf("%c", box.BL);
     for (uint8_t x = x1 + 1; x < x2; x++) printf("%c", box.H);
     printf("%c", box.BR);
 
-    //ERROR IN BG COLOURING?
+    //ERROR IN BG COLOURING ON FIRST STARTUP?
 
     resetbgcolor();
     fgcolor(7);

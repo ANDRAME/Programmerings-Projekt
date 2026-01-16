@@ -18,8 +18,8 @@ void joystick_init(void);
 uint8_t readJoystick(void);
 JoystickDirection getJoystickDirection(uint8_t state);
 const char* joystickString(JoystickDirection dir);
-
-
-
+void joy_init(void);
+uint16_t adc1_read(void);
+uint16_t adc2_read(void);
 
 #endif /* JOYSTICK_H_ */

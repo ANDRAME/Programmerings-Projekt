@@ -10,7 +10,7 @@ JoystickDirection2 uart_getJoystickDirection(void)
 
     switch (c)
     {
-        case 'm':
+        case 'p':
             return JOY_SHOOT2;
 
         case 0x1B:   /* ESC */

@@ -24,7 +24,7 @@ extern int bullet_count;
 /* API */
 void Bullets_Update(void);
 void Bullet_Spawn(int32_t shooter, P1 *p1, P2 *p2);
-static void bullet_erase_at(int32_t x, int32_t y);
+void bullet_erase_at(int32_t x, int32_t y);
 
 
 #endif /* SHOOT_H_ */

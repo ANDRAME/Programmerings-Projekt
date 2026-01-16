@@ -60,9 +60,6 @@ int main(void)
     	Bullets_Update();
     	point_count();
 
-    	uint16_t a0 = adc1_read();
-    	uint16_t a1 = adc2_read();
-    	printf("A0 %u A1 %u", a0, a1);
 
     }
 
