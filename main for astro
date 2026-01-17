@@ -1,0 +1,46 @@
+#include "stm32f30x_conf.h"
+#include "30010_io.h"
+#include "astro.h"
+#include "ansi.h"
+#include <stdio.h>
+#include <stdlib.h>
+
+void simple_delay(uint32_t count) {
+    for (volatile uint32_t i = 0; i < count; i++);
+}
+
+int main(void) {
+    // 1. Initialize Hardware
+    uart_init(921600); // Initialize UART for serial communication, has to be higher or the astroid will be glitchy
+    clrscr();        // Clear the terminal screen
+    //hide_cursor();   // Optional: hide cursor for smoother graphics
+
+    // 2. Initialize Asteroid System
+    initAst();
+
+    uint16_t frame_counter = 0;
+    uint8_t screen_width = 120;  // Standard terminal width
+    uint8_t screen_height = 40; // Standard terminal height
+
+    printf("Starting Asteroid Test... \n");
+    simple_delay(1000000);
+    clrscr();
+
+    while(1) {
+        // 3. Spawn logic: Try to spawn an asteroid every 50 frames
+        if (frame_counter % 50 == 0) {
+            spawnAstro(screen_width);
+        }
+
+        // 4. Update and Draw
+        // This function handles the deleting, moving, and redrawing
+        updateAstro(screen_height);
+
+        // 5. Timing Control
+        // Adjust the delay to control the game speed
+        simple_delay(500000); //controls when spawn
+
+        frame_counter++;
+    }
+
+    return 0;
