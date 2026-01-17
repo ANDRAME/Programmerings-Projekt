@@ -2,6 +2,7 @@
 #include <string.h>
 #include "lcd.h"
 #include "charset.h"
+#include "players.h"
 
 uint8_t lcd_buffer[512];
 
@@ -37,26 +38,44 @@ static int16_t wrap_int16(int16_t v, int16_t period)
     return v;
 }
 
-void lcd_update(uint8_t page)
+
+void lcd_update(P1 *p1, P2 *p2)
 {
-    static int16_t offset = 0;          // scroll offset
+    static int16_t offset = 0;  // scroll offset (persists across calls)
+
     const char text[] = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
     int16_t text_width = (int16_t)strlen(text) * 6;
 
-    // Clear visible page
-    for (uint8_t col = 0; col < 128; col++) {
-        lcd_buffer[lcd_index(col, page)] = 0x00;
-    }
-
-    // Make it start ON the LCD: first letter at x=0 initially
+    // Advance scroll so first letter starts at x=0 initially
     offset = wrap_int16(offset + 1, text_width);
-
-    // Base x is negative offset (so it slides left)
     int16_t x1 = -offset;
 
-    // Draw two copies so the end connects to the beginning seamlessly
-    lcd_write_string(x1, page, text);
-    lcd_write_string(x1 + text_width, page, text);
+    // Clear ALL pages
+    for (uint8_t page = 0; page < 4; page++) {
+        for (uint8_t col = 0; col < 128; col++) {
+            lcd_buffer[lcd_index(col, page)] = 0x00;
+        }
 
+        // Draw scrolling text on each page (if you only want it on page 0, wrap in: if (page == 0) { ... })
+        if (page == 0)
+        {lcd_write_string(x1, page, text);
+        lcd_write_string(x1 + text_width, page, text);}
+
+        if (page == 3)
+        {lcd_write_string(x1, page, text);
+        lcd_write_string(x1 + text_width, page, text);}
+    }
+
+    // HUD / scores (fixed pages)
+    char buf[32];
+
+    snprintf(buf, sizeof(buf), "P1 <3:%ld Score:%d", (long)p1->hlth, p1->pnt);
+    lcd_write_string(1, 1, buf);
+
+    snprintf(buf, sizeof(buf), "P2 <3:%ld Score:%d", (long)p2->hlth, p2->pnt);
+    lcd_write_string(1, 2, buf);
+
+    // Push once after everything is drawn
     lcd_push_buffer(lcd_buffer);
 }
+

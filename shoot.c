@@ -24,7 +24,7 @@ void Bullets_Update(void)
 	static uint8_t buffer = 0;
 	buffer++;
 
-	if ((buffer) >= 10) {
+	if ((buffer) >= 5) {
 	    buffer = 0;
 		for (int i = 0; i < bullet_count; i++)
 		{
@@ -40,7 +40,7 @@ void Bullets_Update(void)
 			}
 
 			/* delete if off screen */
-			if (bullets[i].y <= 2)
+			if (bullets[i].y <= 4)
 			{
 				bullets[i] = bullets[bullet_count - 1];
 				bullet_count--;

@@ -75,7 +75,7 @@ void joy_init(void)
     while (!(ADC1->ISR & 0x00000001)) { }
 }
 
-uint16_t adc1_read(void)   /* joystick X maybe */
+uint16_t adc1_read(void)   /* joystick X*/
 {
     ADC_RegularChannelConfig(ADC1, ADC_Channel_1, 1, ADC_SampleTime_1Cycles5); // PA0
     ADC_StartConversion(ADC1);
@@ -83,7 +83,7 @@ uint16_t adc1_read(void)   /* joystick X maybe */
     return ADC_GetConversionValue(ADC1);
 }
 
-uint16_t adc2_read(void)   /* joystick Y maybe */
+uint16_t adc2_read(void)   /* joystick Y*/
 {
     ADC_RegularChannelConfig(ADC1, ADC_Channel_2, 1, ADC_SampleTime_1Cycles5); // PA1
     ADC_StartConversion(ADC1);
@@ -113,7 +113,7 @@ uint8_t readJoystick(void)
     if (adc1_read() > 3800)
         state |= (0x01 << 3);
 
-    // bit 4: 1 if joystick pressed CENTER (PB5), 0 otherwise
+    // bit 4: 1 if Button 2 is pressed (PB5), 0 otherwise
     if (GPIOC->IDR & (0x0001 << 8))
     {
     	state |= (0x01 << 4);
@@ -126,7 +126,7 @@ uint8_t readJoystick(void)
 
 JoystickDirection getJoystickDirection(uint8_t state)
 {
-    // Priority order
+    // Priority order   #!!!!!! NEED FIX FOR MULTISTATE
     if (state & (0x01 << 4)) return JOY_CENTER;
     if (state & (0x01 << 0)) return JOY_UP;
     if (state & (0x01 << 1)) return JOY_DOWN;

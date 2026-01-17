@@ -3,10 +3,19 @@
 
 #include <stdint.h>
 
-typedef struct {
-    const char **data;   // array of strings (rows)
-} Spr;
+/* Sprite dimensions */
+#define SPRITE_W 4
+#define SPRITE_Height 4
 
+/* Color indices */
+#define SPRITE_TRANSPARENT 0
+
+/* Function prototypes */
+void sprite_draw(int x, int y);
+void sprite_erase(int x, int y);
+
+/* Optional: expose sprite data if needed elsewhere */
+extern const uint8_t PLAYER1_COLORSPRITE[SPRITE_Height][SPRITE_W];
 
 void sprite_draw(int x, int y);
 
