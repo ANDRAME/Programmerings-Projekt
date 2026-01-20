@@ -1,4 +1,3 @@
-
 #include "game.h"
 #include "stm32f30x_conf.h"
 #include "30010_io.h"
@@ -16,12 +15,13 @@
 #include "LUTSrc.h"
 #include "asteroid.h"
 
-
 #define ANSI_RED   "\033[31m"
+#define ANSI_GREY  "\033[90m"
 #define ANSI_RESET "\033[0m"
+#define MAX_LIVES_SHOWN 3
 
-
-void draw_heart(int16_t x, int16_t y)
+// Draw one heart using the given ANSI color string
+static void draw_heart_colored(int16_t x, int16_t y, const char *color)
 {
     char h1[] = {32,32,219,219,219,32,32,32,219,219,219,32,32,'\0'};
     char h2[] = {32,219,219,219,219,219,32,219,219,219,219,219,32,'\0'};
@@ -31,43 +31,39 @@ void draw_heart(int16_t x, int16_t y)
     char h6[] = {32,32,32,219,219,219,219,219,219,32,32,32,32,'\0'};
     char h7[] = {32,32,32,32,32,219,219,219,32,32,32,32,32,32,'\0'};
 
-    printf(ANSI_RED);
+    printf("%s", color);
 
-    gotoxy(x, y);     printf("%s", h1);
-    gotoxy(x, y + 1); printf("%s", h2);
-    gotoxy(x, y + 2); printf("%s", h3);
-    gotoxy(x, y + 3); printf("%s", h4);
-    gotoxy(x, y + 4); printf("%s", h5);
-    gotoxy(x, y + 5); printf("%s", h6);
-    gotoxy(x, y + 6); printf("%s", h7);
+    gotoxy((uint8_t)x, (uint8_t)y);       printf("%s", h1);
+    gotoxy((uint8_t)x, (uint8_t)(y + 1)); printf("%s", h2);
+    gotoxy((uint8_t)x, (uint8_t)(y + 2)); printf("%s", h3);
+    gotoxy((uint8_t)x, (uint8_t)(y + 3)); printf("%s", h4);
+    gotoxy((uint8_t)x, (uint8_t)(y + 4)); printf("%s", h5);
+    gotoxy((uint8_t)x, (uint8_t)(y + 5)); printf("%s", h6);
+    gotoxy((uint8_t)x, (uint8_t)(y + 6)); printf("%s", h7);
 
-    printf(ANSI_RESET);
+    printf("%s", ANSI_RESET);
 }
 
-/* Draw N hearts (max 3) next to each other.
-   Heart width is ~13 chars; we use spacing 15 to avoid overlap. */
-static void draw_player_hearts(int16_t x, int16_t y, int lives)
-{
-    if (lives < 0) lives = 0;
-    if (lives > 3) lives = 3;
-
-    for (int i = 0; i < lives; i++)
-    {
-        draw_heart(x + (int16_t)(i * 15), y);
-    }
-}
-
-/* Optional: clear the heart area before redraw (useful if lives drop).
-   Clears a rectangle that fits 3 hearts: width ~ (3*15)=45, height 7. */
+// Clears a rectangle that fits 3 hearts: width ~45, height 7
 static void clear_heart_area(int16_t x, int16_t y)
 {
-    for (int r = 0; r < 7; r++)
-    {
-        gotoxy(x, y + r);
+    for (int r = 0; r < 7; r++) {
+        gotoxy((uint8_t)x, (uint8_t)(y + r));
         printf("                                             "); // 45 spaces
     }
 }
 
+// Draw 3 hearts: red for remaining lives, grey for lost lives
+static void draw_player_hearts(int16_t x, int16_t y, int lives_now)
+{
+    if (lives_now < 0) lives_now = 0;
+    if (lives_now > MAX_LIVES_SHOWN) lives_now = MAX_LIVES_SHOWN;
+
+    for (int i = 0; i < MAX_LIVES_SHOWN; i++) {
+        const char *col = (i < lives_now) ? ANSI_RED : ANSI_GREY;
+        draw_heart_colored((int16_t)(x + (int16_t)(i * 15)), y, col);
+    }
+}
 
 void game_init(P1 *p1, P2 *p2, WindowStyle_t *style)
 {
@@ -76,21 +72,18 @@ void game_init(P1 *p1, P2 *p2, WindowStyle_t *style)
 
     char buf[32];
 
-    snprintf(buf, sizeof(buf), "P1 <3 :%ld Score: %d", (long)p1->hlth, p1->pnt);
+    // Use %ld for int32_t/long to avoid the warnings you saw
+    snprintf(buf, sizeof(buf), "P1 <3 :%ld Score: %ld", (long)p1->hlth, (long)p1->pnt);
     lcd_write_string(1, 1, buf);
 
-    snprintf(buf, sizeof(buf), "P2 <3 :%ld Score: %d", (long)p2->hlth, p2->pnt);
+    snprintf(buf, sizeof(buf), "P2 <3 :%ld Score: %ld", (long)p2->hlth, (long)p2->pnt);
     lcd_write_string(1, 2, buf);
 
     lcd_push_buffer(lcd_buffer);
 
-    
-    window((uint8_t[]){1, 1}, (uint8_t[]){100, 40}, *style);//main window
+    window((uint8_t[]){1, 1},   (uint8_t[]){100, 40}, *style);  // main window
+    window((uint8_t[]){101, 1}, (uint8_t[]){160, 40}, *style);  // hearts window
 
-    
-    window((uint8_t[]){101, 1}, (uint8_t[]){120, 40}, *style);//hearts window
-
-    
     gotoxy(103, 3);  printf("PLAYER 1");
     clear_heart_area(103, 4);
     draw_player_hearts(103, 4, (int)p1->hlth);
@@ -99,7 +92,7 @@ void game_init(P1 *p1, P2 *p2, WindowStyle_t *style)
     clear_heart_area(103, 15);
     draw_player_hearts(103, 15, (int)p2->hlth);
 
-    //alien
+    // alien
     gotoxy(10, 2); printf("<<==++==>>");
     gotoxy(10, 3); printf("||[]||[]||");
     gotoxy(10, 4); printf("<<======>>");
@@ -114,4 +107,25 @@ void game_init(P1 *p1, P2 *p2, WindowStyle_t *style)
 
     joystick_init();
     joy_init();
+}
+
+void game_update_hearts(P1 *p1, P2 *p2)
+{
+    static int last_p1 = -999;
+    static int last_p2 = -999;
+
+    int p1_l = (int)p1->hlth;
+    int p2_l = (int)p2->hlth;
+
+    if (p1_l != last_p1) {
+        clear_heart_area(103, 4);
+        draw_player_hearts(103, 4, p1_l);
+        last_p1 = p1_l;
+    }
+
+    if (p2_l != last_p2) {
+        clear_heart_area(103, 15);
+        draw_player_hearts(103, 15, p2_l);
+        last_p2 = p2_l;
+    }
 }
