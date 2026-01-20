@@ -49,7 +49,7 @@ void draw_welcome_banner(uint8_t x, uint8_t y)
 /* Header */
 void render_header(void)
 {
-    draw_box(2, 1, 78, 7);
+    draw_box(2, 1, 100, 7);
     draw_welcome_banner(10, 2);
 
     gotoxy(2, 8);
@@ -61,7 +61,7 @@ void render_main(void)
 	clrscr();
     render_header();
 
-    draw_box(2, 8, 78, 22);
+    draw_box(2, 8, 100, 40);
 
     gotoxy(4, 10);
     printf("Choose an option by pressing a key:");
