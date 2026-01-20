@@ -90,7 +90,7 @@ void render_help(void)
 	clrscr();
     render_header();
 
-    draw_box(2, 8, 78, 24);
+    draw_box(2, 8, 100, 40);
 
     gotoxy(4, 10);
     printf("Controls");
