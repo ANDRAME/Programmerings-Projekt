@@ -9,6 +9,10 @@
 #include "game.h"    // for game_init(...)
 #include "ui_screen.h"
 
+#define BG_COLOR 0   // your game/menu background
+#define UI_FG    7   // menu text color (light gray/white)
+
+
 /* The drawing of the box */
 void draw_box(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2)
 {
@@ -58,6 +62,8 @@ void render_header(void)
 /* Main menu */
 void render_main(void)
 {
+	bgcolor(BG_COLOR);
+	fgcolor(UI_FG);
 	clrscr();
     render_header();
 
@@ -87,6 +93,8 @@ void render_main(void)
 /* Help */
 void render_help(void)
 {
+	bgcolor(BG_COLOR);
+	fgcolor(UI_FG);
 	clrscr();
     render_header();
 
@@ -116,6 +124,8 @@ void render_help(void)
 /* Boss screen */
 void render_boss(void)
 {
+	bgcolor(BG_COLOR);
+	fgcolor(UI_FG);
 	clrscr();
     draw_box(10, 6, 70, 18);
 
