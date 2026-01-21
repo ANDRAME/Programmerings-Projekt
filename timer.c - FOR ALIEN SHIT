@@ -1,12 +1,12 @@
 /*
- * timer.c
+ * timer2.c
  *
  *  Created on: 12. jan. 2026
  *      Author: elina
  */
 
 
-#include "timer.h"
+#include "timer2.h"
 #include "ansi.h"
 #include "alien.h"
 #include "stm32f30x_conf.h" // STM32 config
