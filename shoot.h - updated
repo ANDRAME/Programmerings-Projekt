@@ -2,28 +2,37 @@
 #define SHOOT_H
 
 #include <stdint.h>
-#include "players.h"
-#include "physics.h"
+#include "players.h"    // P1, P2
+#include "physics.h"    // PhysBullet_t
 
 #define MAX_BULLETS 20
 
 typedef enum {
-    BULL_SLOW,
-    BULL_FAST
+    BULL_SLOW = 0,
+    BULL_FAST = 1
 } BulletType_t;
 
+//physics
 typedef struct {
-    int32_t x, y;
+    //integer screen position (for drawing)
+    int32_t x;
+    int32_t y;
+
+    // physics (fixed-point position + velocity)
+    PhysBullet_t phys;
+
+    
     BulletType_t type;
     int32_t player;
-    PhysBullet_t phys;
 } Bullet_t;
+
 
 extern Bullet_t bullets[MAX_BULLETS];
 extern int bullet_count;
 
+//API
+void Bullets_Init(void);
 void Bullets_Update(void);
 void Bullet_Spawn(int32_t shooter, P1 *p1, P2 *p2);
 
-#endif
-
+#endif 
