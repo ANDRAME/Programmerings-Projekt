@@ -7,6 +7,7 @@
 #include "timer.h"
 #include "shoot.h"
 #include "asteroid.h"
+#include "powerup.h"
 
 #define PLAYER_SPEED 1
 
@@ -17,51 +18,47 @@ void player_init(P1 *p1, P2 *p2)
 {
     p1->x = 10; p1->y = 80;
     p1->vx = 0; p1->vy = 0;
-    p1->pnt = 0; p1->hlth = 5;
-    gotoxy(p1->x, p1->y);
-    printf("@");
+    p1->pnt = 0; p1->hlth = 3;
 
     p2->x = 86; p2->y = 80;
     p2->vx = 0; p2->vy = 0;
-    p2->pnt = 0; p2->hlth = 5;
-    gotoxy(p2->x, p2->y);
-    printf("?");
+    p2->pnt = 0; p2->hlth = 3;
 }
 
 void bounds_init(Bounds *bounds)
 {
     bounds->min_x = 2;
     bounds->max_x = 96;
-    bounds->min_y = 10;
-    bounds->max_y = 36;
+
+    bounds->min_y = 10 - 3;
+    bounds->max_y = 36 - 3;
 }
 
-void player_step(P1 *p1, P2 *p2, Bounds *bounds){
+void player_step(P1 *p1, P2 *p2, Bounds *bounds)
+{
+    static uint8_t buffer = 0;
+    buffer++;
 
-	static uint8_t buffer = 0;
-	buffer++;
+    if ((uint8_t)(buffer) >= 10) {
+        buffer = 0;
 
-	if ((uint8_t)(buffer) >= 10) {
-	    buffer = 0;
+        JoystickDirection dir = getJoystickDirection(readJoystick());
 
-	    JoystickDirection dir = getJoystickDirection(readJoystick());
+        p1->vx = 0;
+        p1->vy = 0;
 
-	    p1->vx = 0;
-	    p1->vy = 0;
-
-	    switch (dir)
-	    {
-	        case JOY_UP:    p1->vy = -PLAYER_SPEED; break;
-	        case JOY_DOWN:  p1->vy =  PLAYER_SPEED; break;
-	        case JOY_LEFT:  p1->vx = -PLAYER_SPEED; break;
-	        case JOY_RIGHT: p1->vx =  PLAYER_SPEED; break;
-	        case JOY_CENTER:
-	            Bullet_Spawn(1, p1, p2);
-	            break;
-
-	        default: break;
-	    	}
-		}
+        switch (dir)
+        {
+            case JOY_UP:    p1->vy = -PLAYER_SPEED; break;
+            case JOY_DOWN:  p1->vy =  PLAYER_SPEED; break;
+            case JOY_LEFT:  p1->vx = -PLAYER_SPEED; break;
+            case JOY_RIGHT: p1->vx =  PLAYER_SPEED; break;
+            case JOY_CENTER:
+                Bullet_Spawn(1, p1, p2);
+                break;
+            default: break;
+        }
+    }
 
     JoystickDirection2 dir2 = uart_getJoystickDirection();
 
@@ -90,8 +87,6 @@ void player_step(P1 *p1, P2 *p2, Bounds *bounds){
     p1->x += p1->vx;  p1->y += p1->vy;
     p2->x += p2->vx;  p2->y += p2->vy;
 
-
-
     // -------- clamp P1 --------
     if (p1->x < bounds->min_x) p1->x = bounds->min_x;
     else if (p1->x > bounds->max_x) p1->x = bounds->max_x;
@@ -107,41 +102,49 @@ void player_step(P1 *p1, P2 *p2, Bounds *bounds){
     else if (p2->y > bounds->max_y) p2->y = bounds->max_y;
 
     for (uint8_t i = 0; i < MAX_ASTROIDS; i++)
+    {
+        if (!astro[i].active)
+            continue;
+
+        int ax = astro[i].x + 5;
+        int ay = astro[i].y + 2;
+
+        // inside asteroid rectangle: (x → x+10, y → y+5)
+        if (p1->x >= ax && p1->x <= ax + 10 &&
+            p1->y >= ay && p1->y <= ay + 5)
         {
-            if (!astro[i].active)
-                continue;
-
-            int ax = astro[i].x;
-            int ay = astro[i].y;
-
-            // inside asteroid rectangle: (x → x+10, y → y+5)
-            if (p1->x >= ax && p1->x <= ax + 10 &&
-                p1->y >= ay && p1->y <= ay + 5)
-            {
+            // invincibility powerup blocks damage for player 1
+            if (!powerup_invincible_active(1)) {
                 // teleport player out
                 p1->x = 2;
                 p1->y = 30;
-                p2->hlth--;
+                p1->hlth--;
             }
         }
+    }
+
     for (uint8_t i = 0; i < MAX_ASTROIDS; i++)
+    {
+        if (!astro[i].active)
+            continue;
+
+        int ax = astro[i].x + 5;
+        int ay = astro[i].y + 2;
+
+        // inside asteroid rectangle: (x → x+10, y → y+5)
+        if (p2->x >= ax && p2->x <= ax + 10 &&
+            p2->y >= ay && p2->y <= ay + 5)
         {
-            if (!astro[i].active)
-                continue;
-
-            int ax = astro[i].x;
-            int ay = astro[i].y;
-
-            // inside asteroid rectangle: (x → x+10, y → y+5)
-            if (p2->x >= ax && p2->x <= ax + 10 &&
-                p2->y >= ay && p2->y <= ay + 5)
-            {
-                // teleport player out  //change to blinkning?
+            // NEW: invincibility powerup blocks damage for player 2
+            if (!powerup_invincible_active(2)) {
+                // teleport player out
                 p2->x = 2;
                 p2->y = 30;
                 p2->hlth--;
             }
         }
+    }
+
     // -------- draw new --------
     sprite_draw(p1->x, p1->y);
     sprite_draw(p2->x, p2->y);
