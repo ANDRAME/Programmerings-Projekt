@@ -74,3 +74,5 @@ int main(void) {
 
 			gameCounter = 0;
 		}
+	}
+}
