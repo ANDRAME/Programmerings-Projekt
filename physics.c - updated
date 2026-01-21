@@ -1,7 +1,7 @@
 #include "physics.h"
 #include <limits.h>
 
-//fixed point helper
+/* ---------- Fixed-point helpers ---------- */
 static inline fx16_t fx_mul(fx16_t a, fx16_t b)
 {
     return (fx16_t)(((int64_t)a * b) >> 16);
@@ -36,10 +36,10 @@ LorentzParams_t lorentz_defaults(void)
     p.Bmax   = FX16_FROM_INT(1);
     p.vmax   = FX16_FROM_INT(4);
 
-    p.soft2  = 36;      // ~6px
-    p.range2 = 25*25;   // only within 25px
-    p.radius = 5;       // asteroid radius
-    p.edge   = 5;       // only near the side
+    p.soft2  = 4;      // ~6px
+    p.range2 = 10*10;   // only within 25px
+    p.radius = 6;       // asteroid radius
+    p.edge   = 2;       // only near the side
 
     return p;
 }
@@ -54,7 +54,7 @@ PhysBullet_t phys_from_int(int32_t x, int32_t y, int32_t vx, int32_t vy)
     return b;
 }
 
-//Main physics
+/* ---------- Main physics ---------- */
 int  physics_step_bullet_lorentz(
     PhysBullet_t *b,
     const int16_t *ax, const int16_t *ay, size_t n,
@@ -70,7 +70,7 @@ int  physics_step_bullet_lorentz(
         int32_t dy = by - ay[i];
         int32_t r2 = dx*dx + dy*dy;
 
-        // Activation gate 
+        /* ---- Activation gate ---- */
         if (r2 > p->range2) continue;
 
         int32_t rin  = p->radius - p->edge;
@@ -87,7 +87,7 @@ int  physics_step_bullet_lorentz(
 
     bz_sum = fx_clamp(bz_sum, -p->Bmax, p->Bmax);
 
-    //Lorentz acceleration
+    /* Lorentz acceleration */
     fx16_t axf = fx_mul(p->k, fx_mul(b->vy, bz_sum));
     fx16_t ayf = fx_mul(p->k, fx_mul(-b->vx, bz_sum));
 
@@ -99,9 +99,8 @@ int  physics_step_bullet_lorentz(
     b->x += b->vx;
     b->y += b->vy;
 
-    // kill prevent circling back
-    if (b->vy >= 0) return 0;
-    if (b->vx > FX16_FROM_INT(3) || b->vx < -FX16_FROM_INT(3)) return 0;
+
+
 
     return 1;
 }
