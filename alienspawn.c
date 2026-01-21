@@ -7,7 +7,7 @@
 #include "alien.h"
 #include "ansi.h"
 #include "gpio.h"
-#include "timer.h"
+#include "timer2.h"
 #include <stdio.h>
 #include <stdlib.h>
 
