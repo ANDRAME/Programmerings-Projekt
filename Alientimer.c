@@ -1,0 +1,97 @@
+/*
+ * timer.c
+ *
+ *  Created on: 12. jan. 2026
+ *      Author: elina
+ */
+
+
+#include "Alientimer.h"
+#include "ansi.h"
+#include "alienspawn.h"
+#include "stm32f30x_conf.h" // STM32 config
+#include "30010_io.h" // Input/output library for this course
+
+
+volatile time_s gTime;
+volatile uint8_t gTimeFlag = 0;   // NOT static if you want it visible elsewhere
+
+
+void setUPTimer(void){
+	RCC->APB2ENR |= RCC_APB2Periph_TIM15; // Enable clock line to timer 15;
+	 TIM15->CR1 = 0x0001; // Configure timer 15
+	 TIM15->ARR = 63999; // Set reload value
+	 TIM15->PSC = 9; // Set pres
+	 TIM15->DIER |= 0x0001; // Enable timer 15 interrupts
+
+	 NVIC_SetPriority(TIM1_BRK_TIM15_IRQn, 0); // Set i	nterrupt priority
+	 NVIC_EnableIRQ(TIM1_BRK_TIM15_IRQn);
+}
+
+void stopTimer(void){
+	NVIC_DisableIRQ(TIM1_BRK_TIM15_IRQn);
+}
+
+void startTimer (void){
+	NVIC_EnableIRQ(TIM1_BRK_TIM15_IRQn);
+}
+
+
+
+void resetTime(){
+	gTime.h=0;
+	gTime.m=0;
+	gTime.s=0;
+	gTime.hs=0;
+
+}
+
+void TIM1_BRK_TIM15_IRQHandler(void) {
+
+	gTimeFlag = 1;
+
+
+	TIM15->SR &= ~0x0001; // Clear interrupt bit
+
+ }
+
+
+void stopTime(){
+
+}
+
+void startTime(){
+
+}
+
+
+
+
+
+
+
+
+
+void counting(void)
+{
+	if (gTime.hs >= 100) {
+		gTime.hs = 0;
+		gTime.s++;
+		if (gTime.s >= 60) {
+			gTime.s = 0;
+			gTime.m++;
+			if (gTime.m >= 60) {
+				gTime.m = 0;
+				gTime.h++;
+				if (gTime.h >= 24) {
+					gTime.h = 0;
+				}
+			}
+		}
+	}
+}
+
+
+
+
+

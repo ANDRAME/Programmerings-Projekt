@@ -4,52 +4,57 @@
 #include <stdint.h>
 #include "keyboard.h"
 
-JoystickDirection2 uart_getJoystickDirection(void)
+volatile uint8_t g_pause = 0;
+
+uint8_t uart_getJoystickDirection(void)
 {
+    static uint8_t state = 0;
+    static uint8_t dir_ttl = 0;
+
+    // ESC sequence parser state: 0=normal, 1=got ESC, 2=got ESC[
+    static uint8_t esc = 0;
+
     uint8_t c = uart_get_char();
 
-    switch (c)
-    {
-        case 'p':
-            return JOY_SHOOT2;
-
-        case 0x1B:   /* ESC */
-        {
-            uint8_t c2 = uart_get_char();
-            if (c2 == '[')
+            if (esc == 0)
             {
-                uint8_t c3 = uart_get_char();
-                switch (c3)
-                {
-                    case 'A': return JOY_UP2;
-                    case 'B': return JOY_DOWN2;
-                    case 'C': return JOY_RIGHT2;
-                    case 'D': return JOY_LEFT2;
-                    default:  return JOY_NONE2;
-                }
+
+                if (c == 'p') {
+                    state |= (1<<4);          // shoot event
+                } else if (c == 0x1B) {
+                    esc = 1;
+            } else if (c == 'b') {
+            	g_pause ^= 1;
             }
-            break;
-        }
+            }
 
-        default:
-            break;
-    }
+            else if (esc == 1)
+            {
+                if (c == '[') esc = 2;
+                else esc = 0;
+            }
+            else if (esc == 2)
+            {
+                // arrow received: update direction
+                state &= ~((1<<0)|(1<<1)|(1<<2)|(1<<3));
 
-    return JOY_NONE2;
-}
+                switch (c) {
+                    case 'A': state |= (1<<0); dir_ttl = 6; break; // up
+                    case 'B': state |= (1<<1); dir_ttl = 6; break; // down
+                    case 'D': state |= (1<<2); dir_ttl = 6; break; // left
+                    case 'C': state |= (1<<3); dir_ttl = 6; break; // right
+                    default: break;
+                }
+                esc = 0;
+            }
 
+    // direction decay
+    if (dir_ttl > 0) dir_ttl--;
+    else state &= ~((1<<0)|(1<<1)|(1<<2)|(1<<3));
 
+    // Make shoot a ONE-FRAME event
+    uint8_t out = state;
+    state &= ~(1<<4);
 
-const char* joystickString2(JoystickDirection2 dir2)
-{
-    switch (dir2)
-    {
-        case JOY_UP2:     return "UP";
-        case JOY_DOWN2:   return "DOWN";
-        case JOY_LEFT2:   return "LEFT";
-        case JOY_RIGHT2:  return "RIGHT";
-        case JOY_CENTER2: return "CENTER";
-        case JOY_SHOOT2: return "SHOOT";
-        default:         return "NONE";
-    }
+    return out;
 }

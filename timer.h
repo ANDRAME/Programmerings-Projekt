@@ -4,7 +4,7 @@
 #define TIMER_H_
 
 void setupTimer(void);
-void TIM1_BRK_TIM15_IRQHandler(void);
+void TIM1_BRK_TIM16_IRQHandler(void);
 
 
 volatile struct {

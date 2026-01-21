@@ -10,7 +10,7 @@
 #include "players.h"
 #include "shoot.h"
 #include "alien.h"
-
+/*
 
 
 void game_init(P1 *p1, P2 *p2, WindowStyle_t *style)
@@ -46,4 +46,4 @@ void game_init(P1 *p1, P2 *p2, WindowStyle_t *style)
 
     joystick_init();
     joy_init();
-}
+} */

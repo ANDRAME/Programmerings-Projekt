@@ -8,7 +8,7 @@
 #include "keyboard.h"
 #include "lcd.h"
 #include "players.h"
-#include "shoot.h"
+#include "shoot1.h"
 #include "alien.h"
 #include <stdio.h>
 #include <stdint.h>
@@ -21,14 +21,14 @@
 #define MAX_LIVES_SHOWN 3
 
 // Draw one heart using the given ANSI color string
-static void draw_heart_colored(int16_t x, int16_t y, const char *color)
+void draw_heart_colored(int16_t x, int16_t y, const char *color)
 {
     char h1[] = {32,32,219,219,219,32,32,32,219,219,219,32,32,'\0'};
     char h2[] = {32,219,219,219,219,219,32,219,219,219,219,219,32,'\0'};
     char h3[] = {219,219,219,219,219,219,219,219,219,219,219,219,219,'\0'};
-    char h4[] = {32,219,219,219,219,219,219,219,219,219,219,32,32,'\0'};
-    char h5[] = {32,32,219,219,219,219,219,219,219,219,32,32,32,'\0'};
-    char h6[] = {32,32,32,219,219,219,219,219,219,32,32,32,32,'\0'};
+    char h4[] = {32,219,219,219,219,219,219,219,219,219,219, 219, 32,32,'\0'};
+    char h5[] = {32,32,219,219,219,219,219,219,219,219,219,32,32,32,'\0'};
+    char h6[] = {32,32,32,219,219,219,219,219,219, 219, 32,32,32,32,'\0'};
     char h7[] = {32,32,32,32,32,219,219,219,32,32,32,32,32,32,'\0'};
 
     printf("%s", color);
@@ -45,7 +45,7 @@ static void draw_heart_colored(int16_t x, int16_t y, const char *color)
 }
 
 // Clears a rectangle that fits 3 hearts: width ~45, height 7
-static void clear_heart_area(int16_t x, int16_t y)
+void clear_heart_area(int16_t x, int16_t y)
 {
     for (int r = 0; r < 7; r++) {
         gotoxy((uint8_t)x, (uint8_t)(y + r));
@@ -54,7 +54,7 @@ static void clear_heart_area(int16_t x, int16_t y)
 }
 
 // Draw 3 hearts: red for remaining lives, grey for lost lives
-static void draw_player_hearts(int16_t x, int16_t y, int lives_now)
+void draw_player_hearts(int16_t x, int16_t y, int lives_now)
 {
     if (lives_now < 0) lives_now = 0;
     if (lives_now > MAX_LIVES_SHOWN) lives_now = MAX_LIVES_SHOWN;
@@ -82,15 +82,21 @@ void game_init(P1 *p1, P2 *p2, WindowStyle_t *style)
     lcd_push_buffer(lcd_buffer);
 
     window((uint8_t[]){1, 1},   (uint8_t[]){100, 40}, *style);  // main window
-    window((uint8_t[]){101, 1}, (uint8_t[]){160, 40}, *style);  // hearts window
+    window((uint8_t[]){101, 1}, (uint8_t[]){150, 40}, *style);  // hearts window
 
     gotoxy(103, 3);  printf("PLAYER 1");
     clear_heart_area(103, 4);
     draw_player_hearts(103, 4, (int)p1->hlth);
 
-    gotoxy(103, 14); printf("PLAYER 2");
-    clear_heart_area(103, 15);
-    draw_player_hearts(103, 15, (int)p2->hlth);
+    gotoxy(103, 18); printf("PLAYER 2");
+    clear_heart_area(103, 19);
+    draw_player_hearts(103, 19, (int)p2->hlth);
+
+    gotoxy(103, 12); printf("P1 - Points: %ld", (long)p1->pnt);
+    gotoxy(103, 27); printf("P2 - Points: %ld", (long)p2->pnt);
+
+
+
 
     // alien
     gotoxy(10, 2); printf("<<==++==>>");
@@ -105,14 +111,13 @@ void game_init(P1 *p1, P2 *p2, WindowStyle_t *style)
     gotoxy(80, 3); printf("||[]||[]||");
     gotoxy(80, 4); printf("<<======>>");
 
-    joystick_init();
     joy_init();
 }
 
 void game_update_hearts(P1 *p1, P2 *p2)
 {
-    static int last_p1 = -999;
-    static int last_p2 = -999;
+    static last_p1 = -999;
+    static last_p2 = -999;
 
     int p1_l = (int)p1->hlth;
     int p2_l = (int)p2->hlth;
@@ -124,8 +129,26 @@ void game_update_hearts(P1 *p1, P2 *p2)
     }
 
     if (p2_l != last_p2) {
-        clear_heart_area(103, 15);
-        draw_player_hearts(103, 15, p2_l);
+        clear_heart_area(103, 19);
+        draw_player_hearts(103, 19, p2_l);
         last_p2 = p2_l;
+    }
+}
+
+void game_update_points(P1 *p1, P2 *p2)
+{
+    static int last_p1 = -999;
+    static int last_p2 = -999;
+
+    if (p1->pnt != last_p1) {
+        gotoxy(103, 12);
+        printf("P1 - Points: %-5ld", (long)p1->pnt);
+        last_p1 = p1->pnt;
+    }
+
+    if (p2->pnt != last_p2) {
+        gotoxy(103, 27);
+        printf("P2 - Points: %-5ld", (long)p2->pnt);
+        last_p2 = p2->pnt;
     }
 }

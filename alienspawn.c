@@ -4,19 +4,11 @@
  *  Created on: 16. jan. 2026
  *      Author: elina
  */
-#include "alien.h"
+#include "alienspawn.h"
 #include "ansi.h"
-#include "gpio.h"
-#include "timer2.h"
+#include "Alientimer.h"
 #include <stdio.h>
 #include <stdlib.h>
-
-
-static volatile time_s gTime;
-
-
-
-
 
 void draw_alien(uint16_t x, uint16_t y){
 

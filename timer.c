@@ -19,10 +19,12 @@ void setupTimer(void)
     TIM15->CR1  |= 0x0001;    // start timer
 }
 
+
+/*
 void TIM1_BRK_TIM15_IRQHandler(void)
 {
     if (TIM15->SR & 0x0001) {
-        TIM15->SR &= ~0x0001; // clear interrupt flag
+        TIM15->SR &= ~0x0001;
 
         Time.hs++;
         if (Time.hs >= 100) {
@@ -42,3 +44,4 @@ void TIM1_BRK_TIM15_IRQHandler(void)
         }
     }
 }
+*/

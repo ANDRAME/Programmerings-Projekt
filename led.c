@@ -119,7 +119,7 @@ void setLED(LedColor color)
     }
 }
 
-
+/*
 void joystickToLed(void)
 {
     uint8_t state = readJoystick();
@@ -153,4 +153,4 @@ void joystickToLed(void)
             break;
     }
 }
-
+*/
