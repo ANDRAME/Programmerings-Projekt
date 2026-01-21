@@ -2,8 +2,12 @@
 #include "players.h"
 #include "ansi.h"
 #include "powerup.h"
+#include "physics.h"
+#include "asteroid.h"
+#include <stddef.h>
+#include <stdint.h>
 
-/* Your game window (same as you used before) */
+/* Your game window */
 #define WIN_X1  1
 #define WIN_Y1  3
 #define WIN_X2  97
@@ -18,13 +22,29 @@
 Bullet_t bullets[MAX_BULLETS];
 int bullet_count = 0;
 
+//Lorentz params once
+static LorentzParams_t g_lp;
+static uint8_t g_lp_inited = 0;
+
+static void ensure_params(void)
+{
+    if (g_lp_inited) return;
+    g_lp = lorentz_defaults();
+    
+    // lorenz curve (asteroid)
+    g_lp.radius = 6;
+    g_lp.edge   = 6;
+    g_lp.range2 = 10 * 10;   
+    g_lp_inited = 1;
+}
+
 static int in_draw_area(int32_t x, int32_t y)
 {
     return (x >= DRAW_MIN_X && x <= DRAW_MAX_X &&
             y >= DRAW_MIN_Y && y <= DRAW_MAX_Y);
 }
 
-void bullet_erase_at(int32_t x, int32_t y)
+static void bullet_erase_at(int32_t x, int32_t y)
 {
     if (!in_draw_area(x, y)) return;
     gotoxy((uint8_t)x, (uint8_t)y);
@@ -38,62 +58,91 @@ static void bullet_draw_at(int32_t x, int32_t y)
     putchar('*');
 }
 
+//asteroid centers
+static size_t build_asteroid_centers(int16_t *ax, int16_t *ay, size_t cap)
+{
+    size_t n = 0;
+    for (uint8_t i = 0; i < MAX_ASTROIDS && n < cap; i++) {
+        if (!astro[i].active) continue;
+
+       
+        ax[n] = (int16_t)(astro[i].x + 5);
+        ay[n] = (int16_t)(astro[i].y + 2);
+        n++;
+    }
+    return n;
+}
+
 void Bullets_Update(void)
 {
+    ensure_params();
+
     static uint8_t buffer = 0;
     buffer++;
-    if (buffer < 5) return;
+    if (buffer < 5) return;   // keep original update rate
     buffer = 0;
+
+    // Collect asteroids once per bullet update 
+    int16_t ax[MAX_ASTROIDS];
+    int16_t ay[MAX_ASTROIDS];
+    size_t n_ast = build_asteroid_centers(ax, ay, MAX_ASTROIDS);
 
     for (int i = 0; i < bullet_count; i++)
     {
-        /* erase old */
+        
         bullet_erase_at(bullets[i].x, bullets[i].y);
 
-        /* move up */
-        switch (bullets[i].type)
-        {
-            case BULL_SLOW: bullets[i].y -= 1; break;
-            case BULL_FAST: bullets[i].y -= 2; break;
-            default:        bullets[i].y -= 1; break;
-        }
+        
+        int alive = physics_step_bullet_lorentz(&bullets[i].phys, ax, ay, n_ast, &g_lp);
+
+        bullets[i].x = FX16_TO_INT(bullets[i].phys.x);
+        bullets[i].y = FX16_TO_INT(bullets[i].phys.y);
 
 
-        if (bullets[i].y < DRAW_MIN_Y)
+        // kill if physics says so OR out of bounds
+        if (!alive || !in_draw_area(bullets[i].x, bullets[i].y))
         {
+            
             bullets[i] = bullets[bullet_count - 1];
             bullet_count--;
             i--;
             continue;
         }
 
-        /* draw new */
+        
         bullet_draw_at(bullets[i].x, bullets[i].y);
     }
 }
 
 void Bullet_Spawn(int32_t shooter, P1 *p1, P2 *p2)
 {
-    /* Make room for N bullets by deleting from the end */
+    ensure_params();
+
+    
     void make_room(int need)
     {
         while (bullet_count > (MAX_BULLETS - need)) {
-            /* erase the bullet we're dropping so it doesn't leave pixels */
             bullet_erase_at(bullets[bullet_count - 1].x, bullets[bullet_count - 1].y);
             bullet_count--;
         }
     }
 
-    /* Helper to push one bullet with a given X offset */
-    void push_one(int32_t x, int32_t y, int32_t x_off)
+    
+    void push_one(int32_t x, int32_t y, int32_t x_off, int32_t vy_int)
     {
-        if (bullet_count >= MAX_BULLETS) return; /* safety */
+        if (bullet_count >= MAX_BULLETS) return;
 
         Bullet_t *b = &bullets[bullet_count];
         b->type   = powerup_autofast_active((uint8_t)shooter) ? BULL_FAST : BULL_SLOW;
         b->player = shooter;
-        b->x      = x + x_off;
-        b->y      = y;
+
+        int32_t sx = x + x_off;
+        int32_t sy = y;
+
+        b->phys = phys_from_int(sx, sy, 0, vy_int);
+
+        b->x = sx;
+        b->y = sy;
 
         bullet_count++;
         bullet_draw_at(b->x, b->y);
@@ -117,14 +166,16 @@ void Bullet_Spawn(int32_t shooter, P1 *p1, P2 *p2)
             return;
     }
 
+    
+    int32_t vy_int = powerup_autofast_active((uint8_t)shooter) ? -2 : -1;
+
     if (powerup_triple_active((uint8_t)shooter)) {
         make_room(3);
-        push_one(base_x, base_y, -1);
-        push_one(base_x, base_y,  0);
-        push_one(base_x, base_y, +1);
+        push_one(base_x, base_y, -1, vy_int);
+        push_one(base_x, base_y,  0, vy_int);
+        push_one(base_x, base_y, +1, vy_int);
     } else {
         make_room(1);
-        push_one(base_x, base_y, 0);
+        push_one(base_x, base_y, 0, vy_int);
     }
 }
-
