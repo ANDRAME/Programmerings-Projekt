@@ -1,0 +1,76 @@
+#include "stm32f30x_conf.h"
+#include "30010_io.h"
+#include "astro.h"
+#include "ansi.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include "alien.h"
+#include "timer.h"
+#include "alienspawn.h"
+#include "gameEnd.h"
+
+
+
+void simple_delay(uint32_t count) {
+    for (volatile uint32_t i = 0; i < count; i++);
+}
+
+
+int main(void) {
+
+	uart_init(921600);
+	draw_alienSpawn(10,1);
+	//uint16_t frame_counter = 0;
+	uint8_t screen_width = 40;  // Standard terminal width
+	uint8_t screen_height = 105; // Standard terminal height
+	uint8_t gameCounterTickRate = 50;
+	uint8_t gameCounter =0;
+	uint16_t alienSpawnCounter = 0;
+	uint8_t bounce=1;
+
+
+
+
+
+
+
+	initAlien();
+	setupTimer();
+	clrcur();
+
+	clrscr();
+
+	printf("Starting alien Test... \n");
+	simple_delay(1000000);
+	clrscr();
+
+
+	spawnAlien(screen_width);
+
+	while(1)
+	{
+
+		if (gTimeFlag == 1) // 100 Hz
+		{
+			gameCounter++;
+			alienSpawnCounter++;
+			gTimeFlag = 0;
+		}
+
+
+		if (gameCounter >= gameCounterTickRate)
+		{
+			// update all game components: e,g. astroids, bullets...
+
+			updateAlien(screen_height, &bounce);
+
+			if (alienSpawnCounter >= 1000) // how quick it spawns aliens, might not
+				//be important to change how fast they go but just how fast they spawn
+			{
+
+				spawnAlien(screen_width - 1); //spawning alien in the screen width
+				alienSpawnCounter = 0;
+			}
+
+			gameCounter = 0;
+		}
