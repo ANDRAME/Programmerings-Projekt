@@ -63,23 +63,25 @@ int main(void)
     uint8_t last_frame_tick = Time.hs;
 
     while (1) {
-        // ---- run game logic only once per timer tick ----
+        // once a tick (game logic)
         uint8_t t = Time.hs;
         if (t == last_frame_tick) {
             continue;
         }
         last_frame_tick = t;
 
-        // update LCD at 10 Hz (every 0.1s if Time.hs is centiseconds)
+        // update LCD at 10 Hz 
         if ((Time.hs % 10) == 0) {
             lcd_update(&p1, &p2);
         }
 
         player_step(&p1, &p2, &bounds);
-        powerups_update(&p1, &p2, &bounds);
+        powerups_update(&p1, &p2, &bounds); // new
         Bullets_Update();
         point_count(&p1, &p2);
-        game_update_hearts(&p1, &p2);
+        game_update_hearts(&p1, &p2); // new 
+        game_update_points(&p1, &p2); // new
+
 
         uint32_t now = time_now_hs();
 
