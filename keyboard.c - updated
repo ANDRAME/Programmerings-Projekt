@@ -1,0 +1,67 @@
+#include <stdint.h>
+#include "keyboard.h"
+#include "30010_io.h"
+
+JoystickDirection2 uart_getJoystickDirection(void)
+{
+    // Simple ESC-sequence state machine
+    // 0: idle, 1: got ESC, 2: got ESC[
+    static uint8_t esc_state = 0;
+
+    int k = uart_get_char_nonblocking(); // shooting was being blocked (chat told me to add this?? see 30010_io.c)
+    if (k == -1) {
+        return JOY_NONE2;
+    }
+
+    uint8_t c = (uint8_t)k;
+
+    // Shoot key
+    if (esc_state == 0 && (c == 'n' || c == 'N')) {
+        return JOY_SHOOT2;
+    }
+
+    if (esc_state == 0) {
+        if (c == 0x1B) { // ESC
+            esc_state = 1;
+        }
+        return JOY_NONE2;
+    }
+
+    if (esc_state == 1) {
+        if (c == '[') {
+            esc_state = 2;
+        } else {
+            esc_state = 0;
+        }
+        return JOY_NONE2;
+    }
+
+    // esc_state == 2
+    // Some terminals send ESC [ 1 ; 5 A (etc). Ignore digits and ';' until final A/B/C/D.
+    if ((c >= '0' && c <= '9') || c == ';') {
+        return JOY_NONE2;
+    }
+
+    esc_state = 0;
+
+    switch (c) {
+        case 'A': return JOY_UP2;
+        case 'B': return JOY_DOWN2;
+        case 'C': return JOY_RIGHT2;
+        case 'D': return JOY_LEFT2;
+        default:  return JOY_NONE2;
+    }
+}
+
+const char* joystickString2(JoystickDirection2 dir2)
+{
+    switch (dir2) {
+        case JOY_UP2:     return "UP";
+        case JOY_DOWN2:   return "DOWN";
+        case JOY_LEFT2:   return "LEFT";
+        case JOY_RIGHT2:  return "RIGHT";
+        case JOY_CENTER2: return "CENTER";
+        case JOY_SHOOT2:  return "SHOOT";
+        default:          return "NONE";
+    }
+}
