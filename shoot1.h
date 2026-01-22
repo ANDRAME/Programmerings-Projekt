@@ -26,4 +26,3 @@ void Bullets_Update(void);
 void Bullet_Spawn(int32_t shooter, P1 *p1, P2 *p2);
 
 #endif
-

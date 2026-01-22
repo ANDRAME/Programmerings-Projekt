@@ -1,18 +1,39 @@
-
+/*
+ * timer.h
+ *
+ *  Created on: 12. jan. 2026
+ *      Author: elina
+ */
 
 #ifndef TIMER_H_
 #define TIMER_H_
 
-void setupTimer(void);
-void TIM1_BRK_TIM16_IRQHandler(void);
+
+#include <stdint.h>
+#include <stdlib.h>
+
+typedef struct{
+	 uint8_t hs;
+	 uint8_t s;
+	 uint8_t m;
+	 uint8_t h;
+} time_s;
 
 
-volatile struct {
-    int32_t s;             // sekond
-    int32_t m;			 //minut
-    int32_t h;      // hour
-    int32_t hs;// hundreth s
-} Time;
+extern volatile uint8_t gTimeFlag;
+extern volatile time_s gTime;
+
+void startTimer();
+void stopTimer();
+void resetTime();
+void setUPTimer(void);
+void counting(void);
+void printTimer(void);
+
+
+
+
+
 
 
 #endif /* TIMER_H_ */

@@ -1,10 +1,19 @@
-
+/*
+ * graphics.h
+ *
+ *  Created on: 15. jan. 2026
+ *      Author: elina
+ */
 
 #ifndef ASTEROID_H_
 #define ASTEROID_H_
+#include "stm32f30x_conf.h" // STM32 config
+#include "30010_io.h" // Input/output library for this course
+
+
 
 /*
- * graphics.h
+
  *
  *  Created on: 15. jan. 2026
  *      Author: elina
