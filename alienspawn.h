@@ -30,7 +30,7 @@ void initAlien();
 void spawnAlien(uint8_t grid_width);
 
 void delete_alien(alienStruct *aliens);
-void updateAlien(uint8_t grid_width, uint8_t *bounce);
+void updateAlien(uint8_t grid_width);
 
 
 
