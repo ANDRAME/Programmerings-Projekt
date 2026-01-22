@@ -1,10 +1,8 @@
-
 #include "stm32f30x_conf.h"
 #include "30010_io.h"
 #include "ansi.h"
 #include "window.h"
 #include "joystick.h"
-#include "Alientimer.h"
 #include "keyboard.h"
 #include "lcd.h"
 #include "players.h"
@@ -15,27 +13,23 @@
 #include "ui_screen.h"
 #include "asteroid.h"
 #include "powerup.h"
+#include "timer.h"
 #include <stdio.h>
 #include <stdlib.h>
-void draw_alien(uint16_t x, uint16_t y);
-void initAlien();
-void spawnAlien(uint8_t grid_width);
 
-void updateAlien(uint8_t grid_width, uint8_t *bounce);
+
 
 int main(void)
 {
     uart_init(921600);
     clrscr();
-    cursor_hide();
-
-    uint8_t gTimeFlag = 0;
 
 
-	uint8_t gameCounterTickRate = 5;
+
+	uint8_t gameCounterTickRate = 50;
 	uint8_t gameCounter =0;
 	uint16_t alienSpawnCounter = 0;
-	uint8_t bounce=1;
+
 
 
     WindowStyle_t myStyle;
@@ -128,13 +122,13 @@ int main(void)
             		{
             			// update all game components: e,g. astroids, bullets...
 
-            			updateAlien(94, &bounce);
+            			updateAlien(94);
 
             			if (alienSpawnCounter >= 500) // how quick it spawns aliens, might not
             				//be important to change how fast they go but just how fast they spawn
             			{
 
-            				spawnAlien(screen_width - 1); //spawning alien in the screen width
+            				spawnAlien(screen_width); //spawning alien in the screen width
             				alienSpawnCounter = 0;
             			}
 
@@ -159,4 +153,3 @@ int main(void)
         }
     }
 }
-
