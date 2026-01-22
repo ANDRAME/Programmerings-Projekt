@@ -12,7 +12,6 @@
 #include "alien.h"
 #include <stdio.h>
 #include <stdint.h>
-#include "LUTSrc.h"
 #include "asteroid.h"
 
 volatile uint8_t g_pause = 0;

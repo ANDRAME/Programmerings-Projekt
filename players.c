@@ -5,7 +5,7 @@
 #include "keyboard.h"
 #include "30010_io.h"
 #include "timer.h"
-#include "shoot.h"
+#include "shoot1.h"
 #include "asteroid.h"
 
 #define PLAYER_SPEED 1

@@ -6,9 +6,17 @@
  */
 #include "alienspawn.h"
 #include "ansi.h"
-#include "Alientimer.h"
+
+#include "timer.h"
 #include <stdio.h>
 #include <stdlib.h>
+
+
+extern volatile time_s gTime;
+
+
+
+
 
 void draw_alien(uint16_t x, uint16_t y){
 
@@ -95,15 +103,15 @@ void initAlien (){ //starts by having all the aliens at 0
 
 }
 void spawnAlien (uint8_t grid_width){ //how big the grid is
-
-
 	for (uint8_t j=0; j<MAX_ALIENS; j++)
 	{
+
 		if (!aliens[j].active){ //if aliens are not active
 
 			//uint8_t x= rand() % (grid_width-ALIEN_WIDTH); // by having these, the aliens will fak over
-			aliens[j].x = 1; // aliens will spawn randomly in the grid width
-			aliens[j].y = 2; //where on y-axis they spawn
+			//aliens[j].x = rand() % (grid_width-ALIEN_WIDTH); // aliens will spawn randomly in the grid width
+			aliens[j].x=5;
+			aliens[j].y = 10; //where on y-axis they spawn
 			aliens[j].active=1; //activates it
 			break;
 		}
@@ -119,9 +127,9 @@ void spawnAlien (uint8_t grid_width){ //how big the grid is
 
 
 void delete_alien(alienStruct *aliens){
-	for(uint8_t j=0; j<ALIEN_HEIGHT; j++){
+	for(uint8_t j=0; j<ALIEN_WIDTH; j++){
 		gotoxy(aliens->x, aliens->y+j);
-		printf("      ");
+		printf("          ");
 	}
 
 }
@@ -129,7 +137,7 @@ void delete_alien(alienStruct *aliens){
 
 
 
-void updateAlien(uint8_t grid_width, uint8_t *bounce)
+void updateAlien(uint8_t grid_width)
 { // might have to be called grid_width
 
 	for (uint8_t j = 0; j < MAX_ALIENS; j++)
@@ -137,41 +145,24 @@ void updateAlien(uint8_t grid_width, uint8_t *bounce)
 		if (aliens[j].active)
 		{
 			delete_alien(&aliens[j]);
-			if (aliens[j].x > grid_width)
+			if (aliens[j].x + aliens[j].speed > (grid_width)-ALIEN_WIDTH)
 			{
-				*bounce = 0;
+				aliens[j].speed =  -aliens[j].speed;
 			}
-		}
-	}
-	for (uint8_t j = 0; j < MAX_ALIENS; j++)
-	{
-		if (aliens[j].active)
-		{
-			if (aliens[j].x <=1)
-						{
-							*bounce = 1;
-						}
-		}
-	}
-	for (uint8_t j = 0; j < MAX_ALIENS; j++)
-	{
-		if (aliens[j].active)
-		{
-
-			if (*bounce == 1)
+			else if (aliens[j].x + aliens[j].speed <=1)
 			{
-				aliens[j].x += aliens[j].speed; // makes the alien move
+				aliens[j].speed =  -aliens[j].speed;
 			}
-			else if (*bounce == 0)
-			{
-				aliens[j].x -= aliens[j].speed;
-			}
-			gotoxy(5,6);
-
+			aliens[j].x += aliens[j].speed;
 			draw_alien(aliens[j].x, aliens[j].y);
+
 		}
 	}
 }
+
+
+
+
 
 
 void timeAlien()
@@ -185,6 +176,14 @@ void timeAlien()
 }
 
 
+
+
+
+
+
 alienStruct* get_aliens(){
 	return aliens;
 }
+
+
+

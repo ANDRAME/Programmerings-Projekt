@@ -1,10 +1,56 @@
 #include "joystick.h"
 #include "stm32f30x.h"
 
+/*
+ * Joystick mapping (from schematic):
+ * UP     -> PA4
+ * DOWN   -> PB0
+ * LEFT   -> PC1
+ * RIGHT  -> PC0
+ * SHOOT  -> PC8
+ * */
+
+void joystick_init(void)
+{
+    // Enable clock for GPIO Port A, B, C
+    RCC->AHBENR |= RCC_AHBPeriph_GPIOA;
+    RCC->AHBENR |= RCC_AHBPeriph_GPIOB;
+    RCC->AHBENR |= RCC_AHBPeriph_GPIOC;
+
+    // Set PA4 to input
+    GPIOA->MODER &= ~(0x00000003 << (4 * 2));  // Clear mode register
+    GPIOA->MODER |=  (0x00000000 << (4 * 2));  // Set mode register (0x00 - Input)
+    GPIOA->PUPDR &= ~(0x00000003 << (4 * 2));  // Clear push/pull register
+    GPIOA->PUPDR |=  (0x00000000 << (4 * 2));  // Set push/pull register (0x00 - No pull)
+
+    // Set PB0 to input
+    GPIOB->MODER &= ~(0x00000003 << (0 * 2));
+    GPIOB->MODER |=  (0x00000000 << (0 * 2));
+    GPIOB->PUPDR &= ~(0x00000003 << (0 * 2));
+    GPIOB->PUPDR |=  (0x00000000 << (0 * 2));
+
+    // Set PC1 to input
+    GPIOC->MODER &= ~(0x00000003 << (1 * 2));
+    GPIOC->MODER |=  (0x00000000 << (1 * 2));
+    GPIOC->PUPDR &= ~(0x00000003 << (1 * 2));
+    GPIOC->PUPDR |=  (0x00000000 << (1 * 2));
+
+    // Set PC0 to input
+    GPIOC->MODER &= ~(0x00000003 << (0 * 2));
+    GPIOC->MODER |=  (0x00000000 << (0 * 2));
+    GPIOC->PUPDR &= ~(0x00000003 << (0 * 2));
+    GPIOC->PUPDR |=  (0x00000000 << (0 * 2));
+
+    // Set PC8 to input
+    GPIOC->MODER &= ~(0x00000003 << (8 * 2));
+    GPIOC->MODER |=  (0x00000000 << (8 * 2));
+    GPIOC->PUPDR &= ~(0x00000003 << (8 * 2));
+    GPIOC->PUPDR |=  (0x00000000 << (8 * 2));
+}
+
 void joy_init(void)
 {
     RCC->AHBENR |= RCC_AHBPeriph_GPIOA;
-    RCC->AHBENR |= RCC_AHBPeriph_GPIOC;
 
     /* PA0 + PA1 ordinary input */
     GPIOA->MODER &= ~((0x3U << (0*2)) | (0x3U << (1*2)));
@@ -27,12 +73,6 @@ void joy_init(void)
 
     ADC1->CR |= 0x00000001;
     while (!(ADC1->ISR & 0x00000001)) { }
-
-    // Set PC8 to input this the shoot
-    GPIOC->MODER &= ~(0x00000003 << (8 * 2));
-    GPIOC->MODER |=  (0x00000000 << (8 * 2));
-    GPIOC->PUPDR &= ~(0x00000003 << (8 * 2));
-    GPIOC->PUPDR |=  (0x00000000 << (8 * 2));
 }
 
 uint16_t adc1_read(void)   /* joystick X*/
@@ -66,7 +106,7 @@ uint8_t readJoystick(void)
         state |= (0x01 << 1);
 
     // bit 2: 1 if joystick pressed LEFT (PC1), 0 otherwise
-    if (adc1_read() < 2500)
+    if (adc1_read() < 3000)
         state |= (0x01 << 2);
 
     // bit 3: 1 if joystick pressed RIGHT (PC0), 0 otherwise
@@ -78,8 +118,33 @@ uint8_t readJoystick(void)
     {
     	state |= (0x01 << 4);
     }
+
+
     // bit 5-7: 0
     return state;
 }
 
+JoystickDirection getJoystickDirection(uint8_t state)
+{
+    // Priority order   #!!!!!! NEED FIX FOR MULTISTATE
+    if (state & (0x01 << 4)) return JOY_CENTER;
+    if (state & (0x01 << 0)) return JOY_UP;
+    if (state & (0x01 << 1)) return JOY_DOWN;
+    if (state & (0x01 << 2)) return JOY_LEFT;
+    if (state & (0x01 << 3)) return JOY_RIGHT;
 
+    return JOY_NONE;
+}
+
+const char* joystickString(JoystickDirection dir)
+{
+    switch (dir)
+    {
+        case JOY_UP:     return "UP";
+        case JOY_DOWN:   return "DOWN";
+        case JOY_LEFT:   return "LEFT";
+        case JOY_RIGHT:  return "RIGHT";
+        case JOY_CENTER: return "SHOOT";
+        default:         return "NONE";
+    }
+}

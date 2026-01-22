@@ -27,8 +27,8 @@ static inline uint32_t lcg_next(void)
 
 static inline uint32_t time_now_hs(void)
 {
-    uint32_t sec = (uint32_t)(Time.h * 3600 + Time.m * 60 + Time.s);
-    return sec * 100u + (uint32_t)Time.hs;
+    uint32_t sec = (uint32_t)(gTime.h * 3600 + gTime.m * 60 + gTime.s);
+    return sec * 100u + (uint32_t)gTime.hs;
 }
 
 static inline int32_t clamp_i32(int32_t v, int32_t lo, int32_t hi)
@@ -46,8 +46,8 @@ static void powerup_erase(int32_t x, int32_t y)
 
 static void powerup_draw(PowerupType_t t, int32_t x, int32_t y)
 {
-    if (t == POWERUP_TRIPLE_SHOT) fgcolor(5);      // purple 
-    else if (t == POWERUP_AUTO_FAST) fgcolor(11);// yellow 
+    if (t == POWERUP_TRIPLE_SHOT) fgcolor(5);      // purple
+    else if (t == POWERUP_AUTO_FAST) fgcolor(11);// yellow
     else if (t == POWERUP_INVINCIBLE) fgcolor(12); // blue
     else fgcolor(7);
 
@@ -59,7 +59,7 @@ static void powerup_draw(PowerupType_t t, int32_t x, int32_t y)
 
 static uint8_t overlap_point_in_player(int32_t px, int32_t py, int32_t x, int32_t y)
 {
-    
+
     return (x >= px && x <= px + 3 && y >= py && y <= py + 3);
 }
 
@@ -152,7 +152,7 @@ void powerups_update(P1 *p1, P2 *p2, Bounds *bounds)
     if (overlap_point_in_player(p1->x, p1->y, g_pu.x, g_pu.y)) {
         if (g_pu.type == POWERUP_TRIPLE_SHOT) g_triple_until_hs[1] = now + 500u;
         if (g_pu.type == POWERUP_AUTO_FAST)   g_autofast_until_hs[1] = now + 500u;
-        if (g_pu.type == POWERUP_INVINCIBLE)  g_invincible_until_hs[1] = now + 1000u;  
+        if (g_pu.type == POWERUP_INVINCIBLE)  g_invincible_until_hs[1] = now + 1000u;
 
         g_pu.active = 0;
         g_pu.type = POWERUP_NONE;
@@ -163,7 +163,7 @@ void powerups_update(P1 *p1, P2 *p2, Bounds *bounds)
     if (overlap_point_in_player(p2->x, p2->y, g_pu.x, g_pu.y)) {
         if (g_pu.type == POWERUP_TRIPLE_SHOT) g_triple_until_hs[2] = now + 500u;
         if (g_pu.type == POWERUP_AUTO_FAST)   g_autofast_until_hs[2] = now + 500u;
-        if (g_pu.type == POWERUP_INVINCIBLE)  g_invincible_until_hs[2] = now + 1000u;  
+        if (g_pu.type == POWERUP_INVINCIBLE)  g_invincible_until_hs[2] = now + 1000u;
 
         g_pu.active = 0;
         g_pu.type = POWERUP_NONE;

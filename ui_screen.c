@@ -9,6 +9,10 @@
 #include "game.h"    // for game_init(...)
 #include "ui_screen.h"
 
+#define BG_COLOR 0   // your game/menu background
+#define UI_FG    7   // menu text color (light gray/white)
+
+
 /* The drawing of the box */
 void draw_box(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2)
 {
@@ -49,7 +53,7 @@ void draw_welcome_banner(uint8_t x, uint8_t y)
 /* Header */
 void render_header(void)
 {
-    draw_box(2, 1, 78, 7);
+    draw_box(2, 1, 100, 7);
     draw_welcome_banner(10, 2);
 
     gotoxy(2, 8);
@@ -58,10 +62,12 @@ void render_header(void)
 /* Main menu */
 void render_main(void)
 {
+	bgcolor(BG_COLOR);
+	fgcolor(UI_FG);
 	clrscr();
     render_header();
 
-    draw_box(2, 8, 78, 22);
+    draw_box(2, 8, 100, 40);
 
     gotoxy(4, 10);
     printf("Choose an option by pressing a key:");
@@ -87,10 +93,12 @@ void render_main(void)
 /* Help */
 void render_help(void)
 {
+	bgcolor(BG_COLOR);
+	fgcolor(UI_FG);
 	clrscr();
     render_header();
 
-    draw_box(2, 8, 78, 24);
+    draw_box(2, 8, 100, 40);
 
     gotoxy(4, 10);
     printf("Controls");
@@ -116,6 +124,8 @@ void render_help(void)
 /* Boss screen */
 void render_boss(void)
 {
+	bgcolor(BG_COLOR);
+	fgcolor(UI_FG);
 	clrscr();
     draw_box(10, 6, 70, 18);
 

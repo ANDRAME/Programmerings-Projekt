@@ -134,7 +134,7 @@ void loseE(uint8_t x, uint8_t y){
 
 
 
-void loseOVER (uint8_t, x, uint8_t y){
+void loseOVER (uint8_t x, uint8_t y){
 
 	char one[] = {219,'\0'};
 	char three1[] = {223, 223, 223, '\0'};

@@ -78,4 +78,3 @@ void lcd_update(P1 *p1, P2 *p2)
     // Push once after everything is drawn
     lcd_push_buffer(lcd_buffer);
 }
-
