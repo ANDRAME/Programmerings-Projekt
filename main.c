@@ -32,7 +32,7 @@ int main(void)
     uint8_t gTimeFlag = 0;
 
 
-	uint8_t gameCounterTickRate = 50;
+	uint8_t gameCounterTickRate = 5;
 	uint8_t gameCounter =0;
 	uint16_t alienSpawnCounter = 0;
 	uint8_t bounce=1;
@@ -80,8 +80,6 @@ int main(void)
 
     while (1) {
 
-    	spawnAlien(screen_width);
-        // once a tick (game logic)
 
         uint8_t t = gTime.hs;
 
@@ -92,65 +90,73 @@ int main(void)
             lcd_update(&p1, &p2);
         }
 
-        if (gTimeFlag == 1) // 100 Hz
-        		{
-        			gameCounter++;
-        			alienSpawnCounter++;
-        			gTimeFlag = 0;
-        		}
 
-        player_step(&p1, &p2, &bounds);
-        powerups_update(&p1, &p2, &bounds); // new
-        Bullets_Update();
-        point_count(&p1, &p2);
-        game_update_hearts(&p1, &p2); // new
-        game_update_points(&p1, &p2); // new
+        pause_manager_step(&p1, &p2, &myStyle);
+
+        if (!g_pause)
+        {
+            gameCounter++;
+            alienSpawnCounter++;
+
+            player_step(&p1, &p2, &bounds);
+            powerups_update(&p1, &p2, &bounds); // new
+            Bullets_Update();
+            point_count(&p1, &p2);
+            game_update_hearts(&p1, &p2); // new
+            game_update_points(&p1, &p2); // new
 
 
 
-        uint32_t now = time_now_hs();
+            uint32_t now = time_now_hs();
 
-        /* Auto-fire while yellow powerup is active */
-        if (powerup_autofast_active(1)) {
-            if ((int32_t)(now - last_autofire_hs_p1) >= 0) {
-                Bullet_Spawn(1, &p1, &p2);
-                last_autofire_hs_p1 = now + 3;   // fire every 0.03s
+            /* Auto-fire while yellow powerup is active */
+            if (powerup_autofast_active(1)) {
+                if ((int32_t)(now - last_autofire_hs_p1) >= 0) {
+                    Bullet_Spawn(1, &p1, &p2);
+                    last_autofire_hs_p1 = now + 3;   // fire every 0.03s
+                }
             }
-        }
 
-        if (powerup_autofast_active(2)) {
-            if ((int32_t)(now - last_autofire_hs_p2) >= 0) {
-                Bullet_Spawn(2, &p1, &p2);
-                last_autofire_hs_p2 = now + 3;   // fire every 0.03s
+            if (powerup_autofast_active(2)) {
+                if ((int32_t)(now - last_autofire_hs_p2) >= 0) {
+                    Bullet_Spawn(2, &p1, &p2);
+                    last_autofire_hs_p2 = now + 3;   // fire every 0.03s
+                }
             }
+
+            if (gameCounter >= gameCounterTickRate)
+            		{
+            			// update all game components: e,g. astroids, bullets...
+
+            			updateAlien(94, &bounce);
+
+            			if (alienSpawnCounter >= 500) // how quick it spawns aliens, might not
+            				//be important to change how fast they go but just how fast they spawn
+            			{
+
+            				spawnAlien(screen_width - 1); //spawning alien in the screen width
+            				alienSpawnCounter = 0;
+            			}
+
+            			gameCounter = 0;
+            		}
+
+            // asteroid spawn/update timing
+            if ((frame_counter % 500) == 0) {
+                spawnAstro(screen_width);
+                spawn_powerup(&bounds);
+            }
+            if ((frame_counter % 50) == 0) {
+                updateAstro(screen_height);
+            }
+
+            frame_counter++;
+            if (frame_counter >= 10000) frame_counter = 0;
         }
-
-        if (gameCounter >= gameCounterTickRate)
-        		{
-        			// update all game components: e,g. astroids, bullets...
-
-        			updateAlien(screen_width);
-
-        			if (alienSpawnCounter >= 1000) // how quick it spawns aliens, might not
-        				//be important to change how fast they go but just how fast they spawn
-        			{
-
-        				spawnAlien(screen_width - 1); //spawning alien in the screen width
-        				alienSpawnCounter = 0;
-        			}
-
-        			gameCounter = 0;
-        		}
-
-        // asteroid spawn/update timing
-        if ((frame_counter % 500) == 0) {
-            spawnAstro(screen_width);
+        else
+        {
+        	uart_getJoystickDirection();
         }
-        if ((frame_counter % 50) == 0) {
-            updateAstro(screen_height);
-        }
-
-        frame_counter++;
-        if (frame_counter >= 10000) frame_counter = 0;
     }
 }
+

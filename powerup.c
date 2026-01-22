@@ -63,7 +63,7 @@ static uint8_t overlap_point_in_player(int32_t px, int32_t py, int32_t x, int32_
     return (x >= px && x <= px + 3 && y >= py && y <= py + 3);
 }
 
-static void spawn_powerup(Bounds *bounds)
+void spawn_powerup(Bounds *bounds)
 {
 
 

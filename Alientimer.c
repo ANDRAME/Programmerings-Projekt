@@ -49,8 +49,6 @@ void resetTime(){
 void TIM1_BRK_TIM15_IRQHandler(void) {
 
 	gTimeFlag = 1;
-
-
 	TIM15->SR &= ~0x0001; // Clear interrupt bit
 
  }
@@ -63,13 +61,6 @@ void stopTime(){
 void startTime(){
 
 }
-
-
-
-
-
-
-
 
 
 void counting(void)

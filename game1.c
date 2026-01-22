@@ -95,22 +95,6 @@ void game_init(P1 *p1, P2 *p2, WindowStyle_t *style)
     gotoxy(103, 12); printf("P1 - Points: %ld", (long)p1->pnt);
     gotoxy(103, 27); printf("P2 - Points: %ld", (long)p2->pnt);
 
-
-
-
-    // alien
-    gotoxy(10, 2); printf("<<==++==>>");
-    gotoxy(10, 3); printf("||[]||[]||");
-    gotoxy(10, 4); printf("<<======>>");
-
-    gotoxy(45, 2); printf("<<==++==>>");
-    gotoxy(45, 3); printf("||[]||[]||");
-    gotoxy(45, 4); printf("<<======>>");
-
-    gotoxy(80, 2); printf("<<==++==>>");
-    gotoxy(80, 3); printf("||[]||[]||");
-    gotoxy(80, 4); printf("<<======>>");
-
     joy_init();
 }
 
