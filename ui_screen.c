@@ -93,32 +93,61 @@ void render_main(void)
 /* Help */
 void render_help(void)
 {
-	bgcolor(BG_COLOR);
-	fgcolor(UI_FG);
-	clrscr();
-    render_header();
+clrscr();
 
-    draw_box(2, 8, 100, 40);
+ gotoxy(10, 4);
+ printf("========== HELP / CONTROLS ==========");
 
-    gotoxy(4, 10);
-    printf("Controls");
+ gotoxy(10, 7);
+ printf("PLAYER 1 (Joystick):");
+ gotoxy(12, 9);
+ printf("- Move: Joystick");
+ gotoxy(12, 10);
+ printf("- Shoot: Button 2");
 
-    gotoxy(6, 12);
-    printf("s  : start game");
+ gotoxy(10, 13);
+ printf("PLAYER 2 (Keyboard):");
+ gotoxy(12, 15);
+ printf("- Move: Arrow keys");
+ gotoxy(12, 16);
+ printf("- Shoot: 'p'");
 
-    gotoxy(6, 13);
-    printf("h  : help screen");
+ gotoxy(10, 19);
+ printf("BOSS KEY:");
+ gotoxy(12, 21);
+ printf("- Press 'b' to toggle boss screen ;)");
 
-    gotoxy(6, 14);
-    printf("b  : boss key");
+ gotoxy(10, 24);
+ printf("POWERUPS (falling blocks):");
 
-    gotoxy(6, 15);
-    printf("m  : main menu");
+ // Purple = Triple shot
+ gotoxy(12, 26);
+ fgcolor(5);
+ printf("%c", (char)219);
+ fgcolor(7);
+ printf(" Purple  - Triple Shot: shoots 3 bullets at once");
 
-    gotoxy(6, 16);
-    printf("q  : quit demo");
+ // Yellow = Auto fast
+ gotoxy(12, 28);
+ fgcolor(11);
+ printf("%c", (char)219);
+ fgcolor(7);
+ printf(" Yellow  - Auto Fast: automatic rapid fire while active");
 
-    fflush(stdout);
+ // Blue = Invincible
+ gotoxy(12, 30);
+ fgcolor(12);
+ printf("%c", (char)219);
+ fgcolor(7);
+ printf(" Blue    - Invincible: no damage from asteroids for a while");
+
+ gotoxy(10, 34);
+ printf("Press 'm' again to return to the menu.");
+
+ gotoxy(10, 36);
+ printf("=====================================");
+
+ resetbgcolor();
 }
 
 /* Boss screen */

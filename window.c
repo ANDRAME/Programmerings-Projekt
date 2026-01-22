@@ -64,4 +64,4 @@ void window(uint8_t xy1[2], uint8_t xy2[2], WindowStyle_t style)
 
     resetbgcolor();
     fgcolor(7);
-}
+	}

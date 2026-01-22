@@ -109,9 +109,9 @@ void spawnAlien (uint8_t grid_width){ //how big the grid is
 		if (!aliens[j].active){ //if aliens are not active
 
 			//uint8_t x= rand() % (grid_width-ALIEN_WIDTH); // by having these, the aliens will fak over
-			//aliens[j].x = rand() % (grid_width-ALIEN_WIDTH); // aliens will spawn randomly in the grid width
-			aliens[j].x=5;
-			aliens[j].y = 10; //where on y-axis they spawn
+			aliens[j].x = rand() % (grid_width-ALIEN_WIDTH); // aliens will spawn randomly in the grid width
+
+			aliens[j].y = 2; //where on y-axis they spawn
 			aliens[j].active=1; //activates it
 			break;
 		}

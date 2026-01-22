@@ -123,6 +123,8 @@ void player_step(P1 *p1, P2 *p2, Bounds *bounds){
             }
         }
     // -------- draw new --------
-    sprite_draw(p1->x, p1->y);
-    sprite_draw(p2->x, p2->y);
+    if (p1->hlth > 0){
+    sprite_draw(p1->x, p1->y);}
+    if (p2->hlth > 0){
+        sprite_draw(p2->x, p2->y);}
 }
