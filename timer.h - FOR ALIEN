@@ -1,12 +1,12 @@
 /*
- * timer2.h
+ * timer.h
  *
  *  Created on: 12. jan. 2026
  *      Author: elina
  */
 
-#ifndef TIMER2_H_
-#define TIMER2_H_
+#ifndef TIMER_H_
+#define TIMER_H_
 
 
 #include <stdint.h>
@@ -20,12 +20,13 @@ typedef struct{
 } time_s;
 
 
-volatile uint8_t gTimeFlag;
+extern volatile uint8_t gTimeFlag;
+extern volatile time_s gTime;
 
 void startTimer();
 void stopTimer();
 void resetTime();
-void setupTimer(void);
+void setUPTimer(void);
 void counting(void);
 void printTimer(void);
 
@@ -35,4 +36,4 @@ void printTimer(void);
 
 
 
-#endif /* TIMER2_H_ */
+#endif /* TIMER_H_ */
