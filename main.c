@@ -129,7 +129,7 @@ int main(void)
         		{
         			// update all game components: e,g. astroids, bullets...
 
-        			updateAlien(screen_height, &bounce);
+        			updateAlien(screen_width);
 
         			if (alienSpawnCounter >= 1000) // how quick it spawns aliens, might not
         				//be important to change how fast they go but just how fast they spawn
