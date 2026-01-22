@@ -18,14 +18,11 @@ void player_init(P1 *p1, P2 *p2)
     p1->x = 10; p1->y = 80;
     p1->vx = 0; p1->vy = 0;
     p1->pnt = 0; p1->hlth = 3;
-    gotoxy(p1->x, p1->y);
-    printf("@");
 
     p2->x = 86; p2->y = 80;
     p2->vx = 0; p2->vy = 0;
     p2->pnt = 0; p2->hlth = 3;
-    gotoxy(p2->x, p2->y);
-    printf("?");
+
 }
 
 void bounds_init(Bounds *bounds)
