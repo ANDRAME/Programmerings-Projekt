@@ -17,21 +17,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "WINscreen.h"
+#include "LOSEscreen.h"
 
 
+//SEE IF U HAVE SHOOT OR SHOOT1, CHANGE ACCORDING TO UR OWN
 
 int main(void)
 {
     uart_init(921600);
     clrscr();
+	clrcur();
 
-
-
-	uint8_t gameCounterTickRate = 50;
+	uint8_t gameTickPeriodHs = 50;
 	uint8_t gameCounter =0;
 	uint16_t alienSpawnCounter = 0;
-
-
+	uint32_t asteroidSpawnCounter =0;
+	uint32_t astroidSpawnPeriodHs = 400;
+	uint16_t powerupCounter =0;
 
     WindowStyle_t myStyle;
     myStyle.wall  = WALL_DOUBLE;
@@ -52,7 +54,7 @@ int main(void)
     initAlien();
     setUPTimer();
 
-    uint16_t frame_counter = 0;
+
     uint8_t screen_width  = 100;
     uint8_t screen_height = 35;
 
@@ -70,15 +72,7 @@ int main(void)
     uint32_t last_autofire_hs_p1 = 0;
     uint32_t last_autofire_hs_p2 = 0;
 
-
-    uint8_t last_frame_tick = gTime.hs;
-
     while (1) {
-
-
-        uint8_t t = gTime.hs;
-
-        last_frame_tick = t;
 
         // update LCD at 10 Hz
         if ((gTime.hs % 10) == 0) {
@@ -92,6 +86,8 @@ int main(void)
         {
             gameCounter++;
             alienSpawnCounter++;
+            asteroidSpawnCounter++;
+            powerupCounter++;
 
             player_step(&p1, &p2, &bounds);
             powerups_update(&p1, &p2, &bounds); // new
@@ -118,59 +114,84 @@ int main(void)
                     last_autofire_hs_p2 = now + 3;   // fire every 0.03s
                 }
             }
+			        //end conditions
+	        if ((p1.hlth<=0)&&(p2.hlth<=0)){
+	        	clrscr();
+	        	draw_lose_screen(10,10);
+	        	while(1){
+	        	}
+	        }
+	        if (p1.pnt  >= 40){
+	        	clrscr();
+	        	draw_win_screen(10,10,1);
+	        	while(1){
+	        	}
+	        }
+	        if (p2.pnt  >= 40){
+	        	clrscr();
+	        	draw_win_screen(10,10,2);
+	        	while(1){
+	        	}
+	        }
 
-            if (gameCounter >= gameCounterTickRate)
-            		{
-            			// update all game components: e,g. astroids, bullets...
+            if (gameCounter >= gameTickPeriodHs)
+			{
+				// update all game components: e,g. astroids, bullets...
 
-            			updateAlien(94);
+				updateAlien(screen_width);
+				updateAstro(screen_height);
 
-            			if (alienSpawnCounter >= 500) // how quick it spawns aliens, might not
-            				//be important to change how fast they go but just how fast they spawn
-            			{
 
-            				spawnAlien(screen_width); //spawning alien in the screen width
-            				alienSpawnCounter = 0;
-            			}
+				if (alienSpawnCounter >= 500) // how quick it spawns aliens, might not
+					//be important to change how fast they go but just how fast they spawn
+				{
 
-            			gameCounter = 0;
-            		}
+					spawnAlien(screen_width); //spawning alien in the screen width
+					alienSpawnCounter = 0;
+				}
 
-            // asteroid spawn/update timing
-            if ((frame_counter % 500) == 0) {
-                spawnAstro(screen_width);
-                spawn_powerup(&bounds);
-            }
-            if ((frame_counter % 50) == 0) {
-                updateAstro(screen_height);
-            }
+				if (asteroidSpawnCounter >= astroidSpawnPeriodHs)
+				{
+					spawnAstro(screen_width);
+					asteroidSpawnCounter=0;
+				}
+				if( powerupCounter >=700){
+					spawn_powerup(&bounds);
+					powerupCounter=0;
+				}
 
-            frame_counter++;
-            if (frame_counter >= 10000) frame_counter = 0;
-        }
-        else
-        {
-        	uart_getJoystickDirection();
-        }
 
-        //end conditions
-        if ((p1.hlth<=0)&&(p2.hlth<=0)){
-        	clrscr();
-        	draw_lose_screen(10,10);
-        	while(1){
-        	}
-        }
-        if (p1.pnt  >= 2){
-        	clrscr();
-        	draw_win_screen(10,10,1);
-        	while(1){
-        	}
-        }
-        if (p2.pnt  >= 2){
-        	clrscr();
-        	draw_win_screen(10,10,2);
-        	while(1){
-        	}
+				// Increase game speed by number of points
+				if (p1.pnt + p2.pnt >= 30)
+				{
+					gameTickPeriodHs=5;
+				}
+
+				else if (p1.pnt + p2.pnt >= 20)
+				{
+					gameTickPeriodHs=10;
+				}
+				else if (p1.pnt + p2.pnt >=15)
+				{
+					gameTickPeriodHs=15;
+				}
+				else if (p1.pnt + p2.pnt>=10)
+				{
+					gameTickPeriodHs=30;
+				}
+				else if (p1.pnt + p2.pnt >=5)
+				{
+				    gameTickPeriodHs=40;
+				}
+				else
+				{
+					gameTickPeriodHs=50;
+				}
+
+				gameCounter = 0;
+			}
+
         }
     }
 }
+        
