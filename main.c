@@ -16,6 +16,8 @@
 #include "timer.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include "WINscreen.h"
+#include "LOSEscreen.h"
 
 
 //SEE IF U HAVE SHOOT OR SHOOT1, CHANGE ACCORDING TO UR OWN
@@ -112,6 +114,25 @@ int main(void)
                     last_autofire_hs_p2 = now + 3;   // fire every 0.03s
                 }
             }
+			        //end conditions
+	        if ((p1.hlth<=0)&&(p2.hlth<=0)){
+	        	clrscr();
+	        	draw_lose_screen(10,10);
+	        	while(1){
+	        	}
+	        }
+	        if (p1.pnt  >= 40){
+	        	clrscr();
+	        	draw_win_screen(10,10,1);
+	        	while(1){
+	        	}
+	        }
+	        if (p2.pnt  >= 40){
+	        	clrscr();
+	        	draw_win_screen(10,10,2);
+	        	while(1){
+	        	}
+	        }
 
             if (gameCounter >= gameTickPeriodHs)
 			{
@@ -174,3 +195,4 @@ int main(void)
     }
 }
         
+
