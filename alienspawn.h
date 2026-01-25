@@ -5,24 +5,22 @@
  *      Author: elina
  */
 
-#ifndef ALIEN_H_
-#define ALIEN_H_
+#ifndef ALIENSPAWN_H_
+#define ALIENSPAWN_H_
 #include "stm32f30x_conf.h" // STM32 config
 #include "30010_io.h" // Input/output library for this course
 #define MAX_ALIENS 5
 #define ALIEN_HEIGHT 10
 #define ALIEN_WIDTH 10
 #define DEFAULT_SPEED 2
-#define MOVE_TICKS 1000
+
 
 
 typedef struct{
 	int16_t x,y;
 	int16_t active;
 	int16_t speed;
-	int16_t tick;
-	int16_t dx;
-	int16_t dy;
+
 }alienStruct;
 
 void draw_alien(uint16_t x, uint16_t y);
