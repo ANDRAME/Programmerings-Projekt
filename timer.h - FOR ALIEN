@@ -31,9 +31,4 @@ void counting(void);
 void printTimer(void);
 
 
-
-
-
-
-
 #endif /* TIMER_H_ */
