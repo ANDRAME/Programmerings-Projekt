@@ -14,7 +14,6 @@
 
 
 volatile time_s gTime;
-
 volatile uint8_t gTimeFlag=0;
 
 void setUPTimer(void){
@@ -24,54 +23,32 @@ void setUPTimer(void){
 	 TIM15->PSC = 9; // Set pres
 	 TIM15->DIER |= 0x0001; // Enable timer 15 interrupts
 
-	 NVIC_SetPriority(TIM1_BRK_TIM15_IRQn, 0); // Set i	nterrupt priority
-	 NVIC_EnableIRQ(TIM1_BRK_TIM15_IRQn);
 }
-
 void stopTimer(void){
 	NVIC_DisableIRQ(TIM1_BRK_TIM15_IRQn);
 }
-
 void startTimer (void){
-	NVIC_EnableIRQ(TIM1_BRK_TIM15_IRQn);
+	NVIC_EnableIRQ(TIM1_BRK_TIM15_IRQn); //enable interrupt
 }
 
+void TIM1_BRK_TIM15_IRQHandler(void) {
+	gTimeFlag = 1;
+	//tells the STM32 the to put gTimeFlag to=1 everytime it is triggered
+
+	TIM15->SR &= ~0x0001; // Clear interrupt bit
+ }
 
 
+/*
 void resetTime(){
 	gTime.h=0;
 	gTime.m=0;
 	gTime.s=0;
 	gTime.hs=0;
-
 }
+*/
 
-void TIM1_BRK_TIM15_IRQHandler(void) {
-
-	gTimeFlag = 1;
-
-
-	TIM15->SR &= ~0x0001; // Clear interrupt bit
-
- }
-
-
-void stopTime(){
-
-}
-
-void startTime(){
-
-}
-
-
-
-
-
-
-
-
-
+/*
 void counting(void)
 {
 	if (gTime.hs >= 100) {
@@ -92,6 +69,6 @@ void counting(void)
 }
 
 
-
+*/
 
 
