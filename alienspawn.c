@@ -112,7 +112,7 @@ void delete_alien(alienStruct *aliens){
 }
 
 void updateAlien(uint8_t grid_width)
-{ // might have to be called grid_width
+{ 
 
 	for (uint8_t j = 0; j < MAX_ALIENS; j++)
 	{
