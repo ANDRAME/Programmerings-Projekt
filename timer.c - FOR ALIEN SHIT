@@ -43,6 +43,7 @@ void resetTime(){
 */
 
 /*
+for exercise 6
 void counting(void)
 {
 	if (gTime.hs >= 100) {
