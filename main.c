@@ -1,10 +1,8 @@
-
 #include "stm32f30x_conf.h"
 #include "30010_io.h"
 #include "ansi.h"
 #include "window.h"
 #include "joystick.h"
-#include "Alientimer.h"
 #include "keyboard.h"
 #include "lcd.h"
 #include "players.h"
@@ -15,29 +13,30 @@
 #include "ui_screen.h"
 #include "asteroid.h"
 #include "powerup.h"
+#include "timer.h"
 #include <stdio.h>
 #include <stdlib.h>
-void draw_alien(uint16_t x, uint16_t y);
-void initAlien();
-void spawnAlien(uint8_t grid_width);
+#include "WINscreen.h"
+#include "LOSEscreen.h"
 
-void updateAlien(uint8_t grid_width, uint8_t *bounce);
+
+
 
 int main(void)
 {
     uart_init(921600);
-    clrscr();
-    cursor_hide();
+    clrscr(); //clears screen
+	clrcur(); //clears cursor away from screen
 
-    uint8_t gTimeFlag = 0;
-
-
-	uint8_t gameCounterTickRate = 5;
+	uint8_t gameTickPeriodHs = 50;
 	uint8_t gameCounter =0;
 	uint16_t alienSpawnCounter = 0;
-	uint8_t bounce=1;
+	uint32_t asteroidSpawnCounter =0;
+	uint32_t astroidSpawnPeriodHs = 400;
+	uint16_t powerupCounter =0;
 
 
+	//the window for the game
     WindowStyle_t myStyle;
     myStyle.wall  = WALL_DOUBLE;
     myStyle.fg    = 7;
@@ -52,12 +51,12 @@ int main(void)
     bounds_init(&bounds);
     powerups_init();
 
-
+    //initialising the asteroids, aliens and the timer
     initAst();
     initAlien();
     setUPTimer();
 
-    uint16_t frame_counter = 0;
+    //dimensions for the screen
     uint8_t screen_width  = 100;
     uint8_t screen_height = 35;
 
@@ -75,15 +74,7 @@ int main(void)
     uint32_t last_autofire_hs_p1 = 0;
     uint32_t last_autofire_hs_p2 = 0;
 
-
-    uint8_t last_frame_tick = gTime.hs;
-
     while (1) {
-
-
-        uint8_t t = gTime.hs;
-
-        last_frame_tick = t;
 
         // update LCD at 10 Hz
         if ((gTime.hs % 10) == 0) {
@@ -94,9 +85,11 @@ int main(void)
         pause_manager_step(&p1, &p2, &myStyle);
 
         if (!g_pause)
-        {
+        {    //incrementing our counters
             gameCounter++;
             alienSpawnCounter++;
+            asteroidSpawnCounter++;
+            powerupCounter++;
 
             player_step(&p1, &p2, &bounds);
             powerups_update(&p1, &p2, &bounds); // new
@@ -123,39 +116,85 @@ int main(void)
                     last_autofire_hs_p2 = now + 3;   // fire every 0.03s
                 }
             }
+			        //end conditions
+	        if ((p1.hlth<=0)&&(p2.hlth<=0)){
+	        	clrscr();
+	        	draw_lose_screen(10,10);
+	        	while(1){
+	        	}
+	        }
+	        if (p1.pnt  >= 40){
+	        	clrscr();
+	        	draw_win_screen(10,10,1);
+	        	while(1){
+	        	}
+	        }
+	        if (p2.pnt  >= 40){
+	        	clrscr();
+	        	draw_win_screen(10,10,2);
+	        	while(1){
+	        	}
+	        }
 
-            if (gameCounter >= gameCounterTickRate)
-            		{
-            			// update all game components: e,g. astroids, bullets...
+            if (gameCounter >= gameTickPeriodHs)
+			{
+				// update all game components
 
-            			updateAlien(94, &bounce);
+				updateAlien(screen_width);
+				updateAstro(screen_height);
 
-            			if (alienSpawnCounter >= 500) // how quick it spawns aliens, might not
-            				//be important to change how fast they go but just how fast they spawn
-            			{
 
-            				spawnAlien(screen_width - 1); //spawning alien in the screen width
-            				alienSpawnCounter = 0;
-            			}
+				if (alienSpawnCounter >= 500) // how quick it spawns aliens
 
-            			gameCounter = 0;
-            		}
+				{
 
-            // asteroid spawn/update timing
-            if ((frame_counter % 500) == 0) {
-                spawnAstro(screen_width);
-            }
-            if ((frame_counter % 50) == 0) {
-                updateAstro(screen_height);
-            }
+					spawnAlien(screen_width); //spawning alien in the screen width
+					alienSpawnCounter = 0;
+				}
 
-            frame_counter++;
-            if (frame_counter >= 10000) frame_counter = 0;
-        }
-        else
-        {
-        	uart_getJoystickDirection();
+				if (asteroidSpawnCounter >= astroidSpawnPeriodHs) //how quick it spawns asteroids
+				{
+					spawnAstro(screen_width);
+					asteroidSpawnCounter=0;
+				}
+				if( powerupCounter >=700){
+					spawn_powerup(&bounds);
+					powerupCounter=0;
+				}
+
+
+
+
+				// Increase game speed by number of points
+				if (p1.pnt + p2.pnt >= 30)
+				{
+					gameTickPeriodHs=5;
+				}
+
+				else if (p1.pnt + p2.pnt >= 20)
+				{
+					gameTickPeriodHs=10;
+				}
+				else if (p1.pnt + p2.pnt >=15)
+				{
+					gameTickPeriodHs=15;
+				}
+				else if (p1.pnt + p2.pnt>=10)
+				{
+					gameTickPeriodHs=30;
+				}
+				else if (p1.pnt + p2.pnt >=5)
+				{
+				    gameTickPeriodHs=40;
+				}
+				else
+				{
+					gameTickPeriodHs=50;
+				}
+
+				gameCounter = 0; //resets counter
+			}
+
         }
     }
 }
-
