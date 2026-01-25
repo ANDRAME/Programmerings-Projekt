@@ -6,14 +6,9 @@
  */
 #include "alienspawn.h"
 #include "ansi.h"
-#include "Alientimer.h"
+#include "timer.h"
 #include <stdio.h>
 #include <stdlib.h>
-
-
-extern volatile time_s gTime;
-
-
 
 
 void draw_alien(uint16_t x, uint16_t y){
@@ -92,47 +87,29 @@ void initAlien (){ //starts by having all the aliens at 0
 	for (uint8_t j=0; j<MAX_ALIENS; j++)
 	{
 		aliens[j].active =0;
-		aliens[j].tick=0;
 		aliens[j].speed= DEFAULT_SPEED;
-
+}
 }
 
-
-
-}
 void spawnAlien (uint8_t grid_width){ //how big the grid is
 	for (uint8_t j=0; j<MAX_ALIENS; j++)
 	{
 
 		if (!aliens[j].active){ //if aliens are not active
-
-			//uint8_t x= rand() % (grid_width-ALIEN_WIDTH); // by having these, the aliens will fak over
-			//aliens[j].x = rand() % (grid_width-ALIEN_WIDTH); // aliens will spawn randomly in the grid width
-			aliens[j].y = 10; //where on y-axis they spawn
+			aliens[j].x=5;
+			aliens[j].y = 5; //where on y-axis they spawn
 			aliens[j].active=1; //activates it
 			break;
 		}
 	}
 }
 
-
-
-
-
-
-
-
-
 void delete_alien(alienStruct *aliens){
 	for(uint8_t j=0; j<ALIEN_WIDTH; j++){
 		gotoxy(aliens->x, aliens->y+j);
 		printf("          ");
 	}
-
 }
-
-
-
 
 void updateAlien(uint8_t grid_width)
 { // might have to be called grid_width
@@ -158,28 +135,9 @@ void updateAlien(uint8_t grid_width)
 }
 
 
-
-
-
-
-void timeAlien()
-{
-	for (uint8_t j=0; j<MAX_ALIENS; j++){
-		if (gTime.s ==0){
-
-
-		}
-	}
-}
-
-
-
-
-
-
-
 alienStruct* get_aliens(){
 	return aliens;
 }
 
-}
+
+
